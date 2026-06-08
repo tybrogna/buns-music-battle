@@ -1,7 +1,8 @@
 name: Setup boilerplate
+description: Setup boilerplate
 inputs:
   renderer-template:
-    description: Define what vite template should be used to create renderer in case if renderer package doesn't exist
+    description: "Define what vite template should be used to create renderer in case if renderer package doesn't exist"
     required: false
     default: ''
 
@@ -34,14 +35,6 @@ runs:
         npm start --workspace @app/integrate-renderer
       shell: bash
       if: inputs.renderer-template != '' && steps.check-renderer.outputs.RENDERER_EXIST == 'false'
-
-    - name: Cache Dependencies
-      uses: actions/cache@v4
-      with:
-        path: node_modules
-        key: npm-${{ runner.os }}-${{ inputs.renderer-template }}-${{ hashFiles('**/package.json') }}
-        restore-keys: |
-          npm-${{ runner.os }}-${{ inputs.renderer-template }}-
 
     - name: Install Dependencies
       run: >-
