@@ -1,0 +1,33 @@
+#pop-up-overlay {
+    pointer-events: none;
+    cursor: default;
+    position: absolute;
+    display: none;
+    width: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* background-color: rgba(0, 0, 0, 0.5); */
+    z-index: 1000;
+}
+
+.background-green {
+    background-color: lightgreen;
+}
+
+.background-red {
+    background-color: lightcoral;
+}
+
+#save-confirm-box {
+    width: 6em;
+    height: 2em;
+    position: absolute;
+    top: 90%;
+    left: 5%;
+}
+
+.deleted {
+    display: none;
+}

@@ -1,0 +1,23 @@
+#logo-box {
+    display: flex;
+    min-height: 50%;
+    margin-top: 8%;
+    margin-bottom: 8%;
+    margin-left: 1em;
+    margin-right: 1em;
+    justify-content: center;
+    align-items: center;
+}
+
+.test-box {
+    border: red 1px solid;
+}
+
+.team-name-textbox {
+    font-size: 36px;
+}
+
+textarea {
+    resize: none;
+    font-size: 16px;
+}

@@ -2,8 +2,44 @@ import {sha256sum} from './nodeCrypto.js';
 import {versions} from './versions.js';
 import {ipcRenderer} from 'electron';
 
+import { readdir, readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+import os from 'os'
+
 function send(channel: string, message: string) {
-  return ipcRenderer.invoke(channel, message);
+    console.log(channel)
+    return ipcRenderer.invoke(channel, message);
+}
+
+export function process_platform() {
+    return process.platform
+}
+
+export function os_userInfo() {
+    return os.userInfo()
+}
+
+export async function path_join(args: [string]) {
+    return path.join(...args)
+}
+
+export async function fs_readdir(location: string) {
+    try {
+        let files = await readdir(location)
+        return files
+    } catch (err) { console.log(err); return '' }
+}
+
+export async function fs_readFile(file: string) {
+    try {
+        return await readFile(file)
+    } catch (err) { console.log(err); return '' }
+}
+
+export async function fs_writeFile(location: string, data: object) {
+    try {
+        return await writeFile(location, JSON.stringify(data))
+    } catch (err) { return err }
 }
 
 export {sha256sum, versions, send};
