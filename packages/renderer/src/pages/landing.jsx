@@ -1,14 +1,21 @@
 import { render } from 'preact'
 import { useState, useEffect } from 'preact/hooks'
 import { $, $$$, range, defaultFolder } from '../js/helpers.js'
-import { process_platform, os_userInfo, fs_readdir } from '@app/preload'
+import { process_platform, os_userInfo, fs_readdir, path_join } from '@app/preload'
+import { Link, Route, Router } from 'wouter-preact'
+import { useHashLocation } from 'wouter-preact/use-hash-location'
+import headerLogo from '../../imgs/logo.webp'
 // import * as Settings from '../settings.js'
 import '../css/landing.css'
+
+import DataViewer from './dataViewer.jsx'
+import FileTest from './fileTest.jsx'
+import MusicTest from './musicTest.jsx'
 
 function LogoBox(props) {
     return (
         <div id='logo-box'>
-            <img class='logo' src='./imgs/logo.webp' />
+            <img class='logo' src={headerLogo} />
         </div>
     )
 }
@@ -57,14 +64,6 @@ function TeamSetup(props) {
 }
 
 function GameSelect() {
-    // let defaultFolder
-    // let operatingSystem = process_platform()
-    // if (operatingSystem == 'darwin') {
-    //     // TODO: fix this
-    //     // defaultFolder = `C:\\Users\\${osUserInfo().username}\\Documents\\big-ear-battle-games`
-    // } else if (operatingSystem.startsWith('win')) {
-    //     defaultFolder = `C:\\Users\\${os_userInfo().username}\\Documents\\big-ear-battle-games`
-    // }
     let [ gamesFound, setGamesFound ] = useState([])
 
     let checkFolderForGames = async () => {
@@ -91,7 +90,7 @@ function GameSelect() {
     )
 }
 
-function Landing() {
+export default function Landing() {
 
     return (
         <div id='shell'>
@@ -99,15 +98,20 @@ function Landing() {
             <TeamSetup />
             <GameSelect />
             <div>
-                <a href='/files'>file viewer</a>
-                <a style="margin-left: 15px;" href='/music-test'>music test</a>
+                <Link href='/files'>file viewer</Link>
+                <Link style="margin-left: 15px;" href='/file-test'>file test</Link>
+                <Link style="margin-left: 15px;" href='/music-test'>music test</Link>
             </div>
             <input type='button' value='Start Game' onclick={e => startGame()}/>
+            <Link id='start-game-link' style='display:none;' href='/game'>file viewer</Link>
+            {/* <Route path='/files' component={DataViewer} />
+            <Route path='/file-test' component={FileTest} />
+            <Route path='/music-test' component={MusicTest} /> */}
         </div>
     )
 }
 
-function startGame(event) {
+async function startGame(event) {
     let nodes = $$$('.team-name-textbox')
     let teams = Array.from(nodes).map(node => { node.value.replace(',', '.') })
     console.log(teams)
@@ -135,15 +139,22 @@ function startGame(event) {
         return
     }
 
+    let gameFolderLocation = await path_join($('#folder-location-input').value, gameFolder)
+
+    console.log(gameFolderLocation)
+
+    localStorage.setItem('gameFolder', gameFolderLocation)
     localStorage.setItem('teams', teams)
     localStorage.setItem('players', players)
-    localStorage.setItem('gameFolder', gameFolder)
-    window.open('/game', '_self')
+    // localStorage.setItem('gameFolder', gameFolder)
+    $('#start-game-link').click()
 }
 
-export default function() {
-    render(Landing(), document.body)
-}
+// export default () => {
+//     return (
+//         <Landing />
+//     )
+// }
 
 //todo: delete the unnecessary setup files
 //      splash logo

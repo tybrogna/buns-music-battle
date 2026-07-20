@@ -1,5 +1,5 @@
 import { render } from 'preact'
-import path from 'path'
+// import path from 'path'
 import { useState, useEffect } from 'preact/hooks'
 import { $, $$$, range, defaultFolder, GameData, Song, Category } from '../js/helpers.js'
 import { signal } from '@preact/signals'
@@ -10,7 +10,6 @@ import { fs_readdir, fs_readFile, fs_writeFile } from '@app/preload'
 let defaultLocation = "./games/test-game"
 let defaultJson = "./data/data.json"
 let gameData = GameData()
-// let selectedGame = ''
 
 function testWrite(event) {
     let data = {}
@@ -328,7 +327,7 @@ function MetadataTags(props) {
     }
 }
 
-function DataViewer() {
+export default function DataViewer() {
     let [gameType, setGameType] = useState('game')
     let [gamesFound, setGamesFound] = useState([])
     let [selectedLocation, setSelectedLocation] = useState('')
@@ -438,37 +437,73 @@ function DataViewer() {
             <div id='pop-up-overlay'>
                 <div id='save-confirm-box'>dont look at me yet</div>
             </div>
-            <input id='game-location-input' type='text' defaultValue={defaultFolder()} />
-            <input type="button" value="check for new games" onClick={checkFolderForGames} />
-            <select id='game-folder-select' onChange={readJson}>
-                <option value=''></option>
-                {GamesOptions}
-            </select>
-            <input type='button' value='recheck folders' onClick={e => setRecheckFoldersCount(recheckFoldersCount + 1)} />
-
-            <fieldset>
-                <legend>Game Rules</legend>
-                <div>
-                    <label for='countdown'>Countdown between selecting a category and song starts playing:</label>
-                    <input id='countdown-input' name='coundown' type='text' value={gameData.countdown} />
+            <div id='file-loading-zone' class='options-zone'>
+                <div id='file-loading-eyecatch'>
+                    hi
                 </div>
-                <div>
-                    <label for='duration'>Default song duration:</label>
-                    <input id='duration-input' name='duration' type='text' value={gameData.defaultDuration} />
+                <div id='file-loading-ops'>
+                    <div class='label-inputs'>
+                        <div class='file-loading-label'>Folder where games are held: </div>
+                        <input id='game-location-input' type='text' defaultValue={defaultFolder()} />
+                        <input type="button" value='scan folder for games' onClick={checkFolderForGames} />
+                    </div>
+                    <div class='label-inputs'>
+                        <div class='file-loading-label'>select game: </div>
+                        <select id='game-folder-select' onChange={readJson}>
+                            <option value></option>
+                            {GamesOptions}
+                        </select>
+                        <input type='button' value='recheck folders' onClick={e => setRecheckFoldersCount(recheckFoldersCount + 1)} />
+                    </div>
                 </div>
-                <div>
-                    <label for='autoReveal'>Auto Reveal Song Info after duration expires?</label>
-                    <input id='autoReveal-input' name='autoReveal' type='checkbox' checked={gameData.autoReveal} />
-                </div>
-                <div>
-                    <label for='gameType'>Metadata Labels</label>
-                    <select id='gameType-input' onChange={e => setGameType(e.target.value) }>
-                        <option value='game'>Use Composer/Game</option>
-                        <option value='music'>Use Artist/Album</option>
-                        <option value='both'>Use Both</option>
-                    </select>
-                </div>
-            </fieldset>
+            </div>
+            <div class='options-zone'>
+                <fieldset>
+                    <legend>Game Rules</legend>
+                    <div class=''>
+                        <div class='label-inputs'>
+                            <label class='file-loading-label' for='countdown'>Countdown between selecting a category and song starts playing:</label>
+                            <input id='countdown-input' name='coundown' type='text' value={gameData.countdown} />
+                        </div>
+                        <div class='label-inputs'>
+                            <label class='file-loading-label' for='duration'>Default song duration:</label>
+                            <input id='duration-input' name='duration' type='text' value={gameData.defaultDuration} />
+                        </div>
+                        <div class='label-inputs'>
+                            <label class='file-loading-label' for='autoReveal'>Auto Reveal Song Info after duration expires?</label>
+                            <input id='autoReveal-input' name='autoReveal' type='checkbox' checked={gameData.autoReveal} />
+                        </div>
+                        <div class='label-inputs'>
+                            <label class='file-loading-label' for='gameType'>Metadata Labels: </label>
+                            <select id='gameType-input' onChange={e => setGameType(e.target.value) }>
+                                <option value='game'>Use Composer/Game</option>
+                                <option value='music'>Use Artist/Album</option>
+                                <option value='both'>Use Both</option>
+                            </select>
+                        </div>
+                    </div>
+                    {/* <div>
+                        <label for='countdown'>Countdown between selecting a category and song starts playing:</label>
+                        <input id='countdown-input' name='coundown' type='text' value={gameData.countdown} />
+                    </div>
+                    <div>
+                        <label for='duration'>Default song duration:</label>
+                        <input id='duration-input' name='duration' type='text' value={gameData.defaultDuration} />
+                    </div>
+                    <div>
+                        <label for='autoReveal'>Auto Reveal Song Info after duration expires?</label>
+                        <input id='autoReveal-input' name='autoReveal' type='checkbox' checked={gameData.autoReveal} />
+                    </div>
+                    <div>
+                        <label for='gameType'>Metadata Labels</label>
+                        <select id='gameType-input' onChange={e => setGameType(e.target.value) }>
+                            <option value='game'>Use Composer/Game</option>
+                            <option value='music'>Use Artist/Album</option>
+                            <option value='both'>Use Both</option>
+                        </select>
+                    </div> */}
+                </fieldset>
+            </div>
             <fieldset>
                 <legend>Categories and Songs</legend>
                 <table>
@@ -569,9 +604,18 @@ async function saveData() {
     } else return 'fail'
 }
 
-export default function() {
-    render(DataViewer(), document.body)
-}
+/*********************
+ * THIS FUNCTION HERE IS WRONG 
+ * RENDER SHOULD ONLY BE CALLED ONCE, EVERYTHING ELSE MUST BE STUFFED IN THERE
+ * WHY IS THAT NOWHERE LISTED
+ * I AM GOING TO WRITE A BLOG POST
+ * I HAVE NO OUTREACH
+ * SOMEONE ELSE WILL FALL FOR THIS SAME TRAP
+ * ARRRRRGH
+ */
+// export default function() {
+//     render(DataViewer(), document.body)
+// }
 
 //todo: DONE new category button
 //      DONE data sanitization

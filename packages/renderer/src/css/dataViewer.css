@@ -12,6 +12,33 @@
     z-index: 1000;
 }
 
+#file-loading-zone {
+    display: flex;
+    width: 97vw;
+    gap: 1em;
+}
+
+#file-loading-eyecatch {
+    width: 100px;
+}
+
+.options-zone input, .options-zone select {
+    margin-right: 1em;
+    margin-left: .5em;
+}
+
+.label-inputs {
+    max-height: 75px;
+    margin-bottom: 4px;
+    /* width: 70%; */
+}
+
+.file-loading-label {
+    display: inline-block;
+    text-align: end;
+    width: 250px;
+}
+
 .background-green {
     background-color: lightgreen;
 }

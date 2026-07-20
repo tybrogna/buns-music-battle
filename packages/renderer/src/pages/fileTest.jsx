@@ -1,9 +1,9 @@
 import { render } from 'preact'
 import { useState, useEffect, useCallback } from 'preact/hooks';
 // import Select from 'react-select'
-import { filesInFolder } from '@app/preload'
+import { fs_readdir } from '@app/preload'
 
-function MusicTest() {
+export default function FileTest() {
     // const [song, setSong] = useState('./games/test-game/songs/schala.mp3#t=00:00:05')
     const [song, setSong] = useState('')
 
@@ -15,7 +15,7 @@ function MusicTest() {
 
     async function fileCheck(e) {
         console.log(document.querySelector('#yk').value)
-        console.log(await filesInFolder(document.querySelector('#yk').value))
+        console.log(await fs_readdir(document.querySelector('#yk').value))
     }
 
     return (
@@ -30,8 +30,4 @@ function MusicTest() {
             <audio src={song} controls/> */}
         </div>
     )
-}
-
-export default function() {
-    render(MusicTest(), document.body)
 }

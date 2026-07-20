@@ -1,7 +1,10 @@
 import type {AppModule} from '../AppModule.js';
 import {ModuleContext} from '../ModuleContext.js';
-import {BrowserWindow} from 'electron';
+import {BrowserWindow, protocol, net} from 'electron';
 import type {AppInitConfig} from '../AppInitConfig.js';
+import { pathToFileURL } from 'node:url';
+import { createReadStream, ReadStream, statSync } from 'node:fs';
+import { Readable } from 'node:stream';
 
 class WindowManager implements AppModule {
   readonly #preload: {path: string};
@@ -15,7 +18,23 @@ class WindowManager implements AppModule {
   }
 
   async enable({app}: ModuleContext): Promise<void> {
+    protocol.registerSchemesAsPrivileged([
+      {
+        scheme: 'asset',
+        privileges: {
+          standard: true,
+          secure: true,
+          supportFetchAPI: true,
+          bypassCSP: true,
+          stream: true
+        }
+      }
+    ])
     await app.whenReady();
+    protocol.handle('asset', function(req: Request): Promise<Response> {
+      let { host, pathname } = new URL(req.url)
+      return net.fetch(pathToFileURL(pathname).toString())
+    })
     await this.restoreOrCreateWindow(true);
     app.on('second-instance', () => this.restoreOrCreateWindow(true));
     app.on('activate', () => this.restoreOrCreateWindow(true));

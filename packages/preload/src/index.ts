@@ -19,7 +19,7 @@ export function os_userInfo() {
     return os.userInfo()
 }
 
-export async function path_join(args: [string]) {
+export async function path_join(...args: [string]) {
     return path.join(...args)
 }
 
@@ -32,8 +32,17 @@ export async function fs_readdir(location: string) {
 
 export async function fs_readFile(file: string) {
     try {
+        console.log(file)
         return await readFile(file)
     } catch (err) { console.log(err); return '' }
+}
+
+// thank you claude
+export async function fs_readMp3(file: string) {
+    try {
+        let audio = await readFile(file)
+        return `data:audio/mp3;base64,${audio.toString('base64')}`
+    } catch (err) { console.log(err) }
 }
 
 export async function fs_writeFile(location: string, data: object) {

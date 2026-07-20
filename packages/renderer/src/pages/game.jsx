@@ -1,8 +1,9 @@
 import { render } from 'preact'
-import * as Settings from '../settings.js'
+// import * as Settings from '../settings.js'
 import { useState, useEffect, useRef } from 'preact/hooks'
 // import { signal } from '@preact/signals'
 import { $, $$$, delay, range, Song, shuffle } from '../js/helpers.js'
+import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join } from '@app/preload'
 
 import '../css/game.css'
 
@@ -17,17 +18,18 @@ function GameScreen() {
 
     useEffect(async () => {
         let selectedGameFolder = localStorage.getItem('gameFolder')
-        // console.log(selectedGameFolder)
-        let filesInFolder = await window.nodejs.call('filesInFolder', `./games/${selectedGameFolder}`)
+        let filesInFolder = await fs_readdir(selectedGameFolder)
         let jsonFileLoc = filesInFolder.filter(item => item.endsWith('.json'))[0]  // first json file in folder
-        let jsonData = await window.nodejs.call('readFile', `./games/${selectedGameFolder}/${jsonFileLoc}`)
+        let jsonPath = await path_join(selectedGameFolder, jsonFileLoc)
+        let jsonData = await fs_readFile(jsonPath)
+        jsonData = await JSON.parse(new TextDecoder().decode(jsonData))
         Object.entries(jsonData.music).forEach(([key, val]) => {
             val.songs.forEach(song => song.played = false)
         })
         game = jsonData
-        game.songsLocation = `./games/${selectedGameFolder}/songs`
-        game.albumsLocation = `./games/${selectedGameFolder}/albums`
-        game.backgroundsLocation = `./games/${selectedGameFolder}/bgs`
+        game.songsLocation = await path_join(selectedGameFolder, 'songs')
+        game.albumsLocation = await path_join(selectedGameFolder, 'albums')
+        game.backgroundsLocation = await path_join(selectedGameFolder, 'bgs')
         game.music.forEach(category => {
             category.songs.forEach(song => {
                 if (song.composer == null) {
@@ -58,6 +60,7 @@ function GameScreen() {
         let song = shuffle(choices)[0]
         song.played = true
         setActiveCategory(category)
+        console.log(song)
         setActiveSong(song)
         $('#player-overlay').style.display = 'block'
     }
@@ -201,11 +204,11 @@ function PlayerList(props) {
 // a logical maze that starts the countdown, plays the song, and displays the information.
 //   i shudder at how readable it will be when i start to add css decoration
 function MusicPlayer(props) {
-    const [guessTimer, setGuessTimer] = useState(props.time)
+    const [guessTimer, setGuessTimer] = useState(parseInt(props.time))
     const [songRevealed, setSongRevealed] = useState(false)
     const [songPlaying, setSongPlaying] = useState(true)
-    const [countdown, setCountdown] = useState(game.countdown)
-    const [songFile, setSongFile] = useState('')
+    const [countdown, setCountdown] = useState(parseInt(game.countdown))
+    const [fileWasLoaded, setFileWasLoaded] = useState(false)
     const audioRef = useRef(null)
 
     useEffect(async () => {
@@ -231,8 +234,16 @@ function MusicPlayer(props) {
     useEffect(async () => {
         console.log('[T] songPlaying was triggered, so im going to....')
         let audio = audioRef.current
-        let songUri = createSongUri(props.song)
-        setSongFile(songUri)
+        // console.log(audio)
+        if (!fileWasLoaded) {
+            let songLocation = await path_join(game.songsLocation, props.song.soundFile)
+            let songBytes = await fs_readMp3(songLocation)
+            audio.src = songBytes
+            audio.currentTime = props.song.startTime
+            setFileWasLoaded(true)
+        }
+        // let songUri = await createSongUri(props.song)
+        // setSongFile(songUri)
         if (countdown <= 0 && songPlaying) {
             audio.play() //;console.log('[T] play a song')
         } else {
@@ -244,7 +255,7 @@ function MusicPlayer(props) {
         <div class='border-2' style="margin: 20%;" onclick={e => e.stopPropagation()}>
             <div class="">{countdown.toFixed(1)}</div>
             <div class="">{guessTimer.toFixed(1)}</div>
-            <audio ref={audioRef} src={songFile} controls/>
+            <audio ref={audioRef} src='' controls/>
             <input type='button' value='play/pause' onClick={e => setSongPlaying(!songPlaying)} />
             <SongInfo songRevealed={songRevealed} song={props.song} />
         </div>
@@ -313,7 +324,7 @@ function defaultTeams() {
     return [teams,players]
 }
 
-function createSongUri(song) {
+async function createSongUri(song) {
     let minAt = Math.floor(song.startTime / 60)
     if (minAt < 10) {
         minAt = "0" + minAt
@@ -323,10 +334,13 @@ function createSongUri(song) {
         secAt = "0" + secAt
     }
     let playAt = `t=00:${minAt}:${secAt}`
-    return game.songsLocation + "/" + song.soundFile + "#" + playAt
+    let uri = await path_join(game.songsLocation, song.soundFile)
+    uri += "#" + playAt
+    console.log(uri)
+    return uri
 }
 
-export default function() {
+export default function Game() {
     let incomingTeams = localStorage.getItem('teams')
     let incomingPlayers = localStorage.getItem('players')
     if (incomingTeams == '' || incomingPlayers == '') {
@@ -344,7 +358,7 @@ export default function() {
     // console.log(gameFolder)
     // let jsonData = getDataFile()
     // console.log('rendering page')
-    render(GameScreen(), document.body)
+    return <GameScreen />
 }
 
 //todo: add images
