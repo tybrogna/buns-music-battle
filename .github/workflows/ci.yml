@@ -70,5 +70,6 @@ jobs:
       - compile-and-test
     uses: ./.github/workflows/deploy.yml
     with:
+      project-name: BunsMusicBattle
       distribution-channel: preact
       app-version: ${{ needs.prepare.outputs.APP_FULL_VERSION }}

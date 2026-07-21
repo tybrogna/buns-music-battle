@@ -3,6 +3,9 @@ name: Deploy
 on:
   workflow_call:
     inputs:
+      project-name:
+        required: true
+        type: string
       app-version:
         required: true
         type: string
@@ -37,6 +40,7 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - run: gh release create v${{inputs.app-version}} dist/root* dist/latest*.yml --repo ${{github.repository}}
+      # has to be some way to not hardcode the project name in here
+      - run: gh release create v${{inputs.app-version}} dist/${{inputs.project-name}}* dist/latest*.yml --repo ${{github.repository}}
         env:
           GH_TOKEN: ${{ github.token }}
