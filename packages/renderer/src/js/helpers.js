@@ -86,17 +86,17 @@ export function objectSort(obj, member) {
     });
 }
 
-export function defaultFolder() {
-    let defaultFolder
-    let operatingSystem = process_platform()
-    if (operatingSystem == 'darwin') {
-        // TODO: fix this
-        // defaultFolder = `C:\\Users\\${osUserInfo().username}\\Documents\\big-ear-battle-games`
-    } else if (operatingSystem.startsWith('win')) {
-        defaultFolder = `C:\\Users\\${os_userInfo().username}\\Documents\\big-ear-battle-games`
-    }
-    return defaultFolder
-}
+// export function defaultFolder() {
+//     let defaultFolder
+//     let operatingSystem = process_platform()
+//     if (operatingSystem == 'darwin') {
+//         // TODO: fix this
+//         // defaultFolder = `C:\\Users\\${osUserInfo().username}\\Documents\\big-ear-battle-games`
+//     } else if (operatingSystem.startsWith('win')) {
+//         defaultFolder = `C:\\Users\\${os_userInfo().username}\\Documents\\big-ear-battle-games`
+//     }
+//     return defaultFolder
+// }
 
 export function utcNow() {
     return Math.floor(new Date().getTime() / 1000)

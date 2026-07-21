@@ -77,7 +77,7 @@ function GameSelect() {
 
     return (
         <>
-        <input id='folder-location-input' type='text' defaultValue={defaultFolder()}/>
+        <input id='folder-location-input' type='text' defaultValue={''}/>
         <input type="button" value="check for new games" onClick={checkFolderForGames} />
         <select id='game-folder-select'>
             {gamesFound.map((item) => {

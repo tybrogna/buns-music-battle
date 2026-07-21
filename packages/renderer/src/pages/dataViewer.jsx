@@ -1,7 +1,7 @@
 import { render } from 'preact'
 // import path from 'path'
 import { useState, useEffect } from 'preact/hooks'
-import { $, $$$, range, defaultFolder, GameData, Song, Category } from '../js/helpers.js'
+import { $, $$$, range, GameData, Song, Category } from '../js/helpers.js'
 import { signal } from '@preact/signals'
 // import * as Settings from '../settings.js'
 import '../css/dataViewer.css'
@@ -444,7 +444,7 @@ export default function DataViewer() {
                 <div id='file-loading-ops'>
                     <div class='label-inputs'>
                         <div class='file-loading-label'>Folder where games are held: </div>
-                        <input id='game-location-input' type='text' defaultValue={defaultFolder()} />
+                        <input id='game-location-input' type='text' defaultValue={''} />
                         <input type="button" value='scan folder for games' onClick={checkFolderForGames} />
                     </div>
                     <div class='label-inputs'>

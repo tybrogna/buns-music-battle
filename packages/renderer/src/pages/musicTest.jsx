@@ -14,12 +14,10 @@ export default function MusicTest() {
     ]
 
     let fetchIt = async (e) => {
-        let mp3Data = await fs_readMp3('C:/Users/tybro/Documents/big-ear-battle-games/test-game/songs/uldah.mp3')
-        document.querySelector('audio').src = mp3Data
-        document.querySelector('audio').currentTime = 10
-        // let f = await fetch('asset:///C:/Users/tybro/Documents/big-ear-battle-games/test-game/songs/uldah.mp3#t=5')
-        // console.log(f)
-        // document.querySelector('audio').load()
+        console.log('honk honk')
+        // let mp3Data = await fs_readMp3('C:/Users/tybro/Documents/big-ear-battle-games/test-game/songs/uldah.mp3')
+        // document.querySelector('audio').src = mp3Data
+        // document.querySelector('audio').currentTime = 10
     }
 
 
@@ -29,7 +27,7 @@ export default function MusicTest() {
                 <Select options={options} />
             </div> */}
             <input type='button' value='fetchit' onClick={fetchIt} />
-            <input type='button' value='do it' onClick={e => setSong('asset:///C:/Users/tybro/Documents/big-ear-battle-games/test-game/songs/uldah.mp3#t=00:00:05')} />
+            {/* <input type='button' value='do it' onClick={e => setSong('asset:///C:/Users/tybro/Documents/big-ear-battle-games/test-game/songs/uldah.mp3#t=00:00:05')} /> */}
             <input type='button' value='more opts' onClick={e => options.push('bruh')} />
             {/* <audio src={song} controls/> */}
             <audio src={'asset:///C:/Users/tybro/Downloads/small.mp3#t=9'} controls/>
