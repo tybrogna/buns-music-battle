@@ -1,6 +1,6 @@
 import { render } from 'preact'
 import { useState, useEffect } from 'preact/hooks'
-import { $, $$$, range, defaultFolder } from '../js/helpers.js'
+import { $, $$$, range } from '../js/helpers.js'
 import { process_platform, os_userInfo, fs_readdir, path_join } from '@app/preload'
 import { Link, Route, Router } from 'wouter-preact'
 import { useHashLocation } from 'wouter-preact/use-hash-location'
