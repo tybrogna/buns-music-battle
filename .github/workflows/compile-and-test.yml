@@ -56,10 +56,10 @@ jobs:
         name: Setup boilerplate
         with:
           renderer-template: ${{inputs.renderer-template}}
-      - run: ls -la node_modules
-        working-directory: ./
-      - run: ls -la node_modules/electron
-        working-directory: ./
+      # - run: ls -la node_modules
+      #   working-directory: ./
+      # - run: ls -la node_modules/electron
+      #   working-directory: ./
 
       - run: npm version "${{inputs.app-version}}" --no-git-tag-version
       - run: npm run compile -- -p never
