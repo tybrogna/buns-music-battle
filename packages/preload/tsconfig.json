@@ -9,9 +9,8 @@
     "strict": true,
     "isolatedModules": true,
     "types": ["node"],
-    "baseUrl": ".",
     "paths": {
-      "@app/*": ["../*"]
+      "@app/*": ["./../*"]
     }
   },
   "include": ["src/**/*.ts", "../../types/**/*.d.ts"],

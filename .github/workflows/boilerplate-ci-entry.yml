@@ -2,22 +2,22 @@
 # The final application is likely to delete this file and use `ci.yml` as the entry point.
 
 name: Run entry ci.yml for each vite starter template
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '**.md'
-      - .editorconfig
-      - '.idea/**'
-      - '.vscode/**'
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - .editorconfig
-      - '.idea/**'
-      - '.vscode/**'
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches:
+#       - main
+#     paths-ignore:
+#       - '**.md'
+#       - .editorconfig
+#       - '.idea/**'
+#       - '.vscode/**'
+#   pull_request:
+#     paths-ignore:
+#       - '**.md'
+#       - .editorconfig
+#       - '.idea/**'
+#       - '.vscode/**'
 
 concurrency:
   group: ${{github.workflow}}-${{ github.ref }}
@@ -41,22 +41,22 @@ jobs:
       fail-fast: false
       matrix:
         renderer-template:
-          - vanilla
-          - vanilla-ts
-          - vue
-          - vue-ts
-          - react
-          - react-ts
-          - react-swc
-          - react-swc-ts
+          # - vanilla
+          # - vanilla-ts
+          # - vue
+          # - vue-ts
+          # - react
+          # - react-ts
+          # - react-swc
+          # - react-swc-ts
           - preact
           - preact-ts
-          - lit
-          - lit-ts
-          - svelte
-          - svelte-ts
-          - solid
-          - solid-ts
+          # - lit
+          # - lit-ts
+          # - svelte
+          # - svelte-ts
+          # - solid
+          # - solid-ts
           # - qwik
           # - qwik-ts
 
