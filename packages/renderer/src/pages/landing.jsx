@@ -75,16 +75,24 @@ function GameSelect() {
         await checkFolderForGames()
     }, [])
 
+    let Options = () => {
+        if (gamesFound == '') {
+            return <option value></option>
+        }
+
+        return gamesFound.map((item) => {
+            return (
+                <option value={item}>{item}</option>
+            )
+        })
+    }
+
     return (
         <>
         <input id='folder-location-input' type='text' defaultValue={''}/>
         <input type="button" value="check for new games" onClick={checkFolderForGames} />
         <select id='game-folder-select'>
-            {gamesFound.map((item) => {
-                return (
-                    <option value={item}>{item}</option>
-                )
-            })}
+            <Options />
         </select>
         </>
     )
