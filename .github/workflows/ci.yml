@@ -2,7 +2,7 @@
 # It is from here that all other workflows are launched.
 name: Entry CI
 on:
-  worflow_dispatch:
+  workflow_dispatch:
   push:
     branches:
     - main
