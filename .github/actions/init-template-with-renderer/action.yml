@@ -39,8 +39,8 @@ runs:
     - name: Install Dependencies
       run: >-
         if [ "${{ steps.check-renderer.outputs.RENDERER_EXIST }}" == "true" ] && [ -f "package-lock.json" ]; then
-          npm ci
+          npm ci --foreground-scripts
         else
-          npm install
+          npm install --foreground-scripts
         fi
       shell: bash
