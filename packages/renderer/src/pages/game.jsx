@@ -1,7 +1,7 @@
 import { render } from 'preact'
 // import * as Settings from '../settings.js'
 import { useState, useEffect, useRef } from 'preact/hooks'
-// import { signal } from '@preact/signals'
+import { Link, Route } from 'wouter-preact'
 import { $, $$$, delay, range, Song, shuffle } from '../js/helpers.js'
 import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join } from '@app/preload'
 
@@ -108,7 +108,10 @@ function GameScreen() {
                 <CategoryGrid categories={categories} selectFunc={selectCategory} />
                 <Teams />
                 <div id='player-overlay' onClick={closeOverlay}>
-                    {PlayerToggle()}
+                    <PlayerToggle />
+                </div>
+                <div id='back-box'>
+                    <Link href='/'>&#8592; // To Title</Link>
                 </div>
             </div>
         )
@@ -119,16 +122,17 @@ function CategoryGrid(props) {
     let catNames = props.categories
     //give the categories random colors
 
-    let CategoryTiles = catNames.map((catName) => { 
+    let CategoryTiles = () => catNames.map((catName) => { 
         return (
             <CategoryTile title={catName} selectFunc={props.selectFunc} />
         )
     })
 
+
     return (
         <>
         <div class='category-tiles-flexbox border-2'>
-            {CategoryTiles}
+            <CategoryTiles />
         </div>
         </>
     )
@@ -156,46 +160,48 @@ function CategoryTile(props) {
 }
 
 function Teams() {
-    let TeamColumns = Object.entries(teams).map(([name, players]) => {
-        let [score, setScore] = useState(0)
-        return (
-            <div class='team-container'>
-                <div class='team-info border-1'>
-                    <div class='team-label'>{name}</div>
-                    <PlayerList players={players} />
+    let TeamColumns = () => //doozy of a one liner
+        Object.entries(teams).map(([name, players]) => {
+            let [score, setScore] = useState(0)
+            return (
+                <div class='team-container'>
+                    <div class='team-info border-1'>
+                        <div class='team-label'>{name}</div>
+                        <PlayerList players={players} />
+                    </div>
+                    <div class='team-score border-2'>
+                        <input type='button' class='plus-button' value='+' 
+                            onClick={e => setScore(score + 1)} />
+                        <div class='score-label'>{score}</div>
+                        <input type='button' class='minus-button' value='-' 
+                            onClick={e => setScore(Math.max(0, score - 1))} />
+                    </div>
                 </div>
-                <div class='team-score border-2'>
-                    <input type='button' class='plus-button' value='+' 
-                        onClick={e => setScore(score + 1)} />
-                    <div class='score-label'>{score}</div>
-                    <input type='button' class='minus-button' value='-' 
-                        onClick={e => setScore(Math.max(0, score - 1))} />
-                </div>
-            </div>
-        )
-    })
+            )
+        })
 
     return (
         <div class='center-content'>
             <div class='teams-zone border-3'>
-                {TeamColumns}
+                <TeamColumns />
             </div>
         </div>
     )
 }
 
 function PlayerList(props) {
-    let PlayerLabels = props.players.map((player) => {
-        return (
-            <div class='player-label'>
-                {player}
-            </div>
-        )
-    })
+    let PlayerLabels = () => 
+        props.players.map((player) => {
+            return (
+                <div class='player-label'>
+                    {player}
+                </div>
+            )
+        })
 
     return (
         <div class='team-player-names border-2'>
-            {PlayerLabels}
+            <PlayerLabels />
         </div>
     )
 }
@@ -299,7 +305,7 @@ function SongInfo(props) {
     }
 
     if (props.songRevealed && autoReveal) {
-        return InfoBlock()
+        return <InfoBlock />
     } else {
         if (!autoReveal) {
             return (
@@ -324,21 +330,22 @@ function defaultTeams() {
     return [teams,players]
 }
 
-async function createSongUri(song) {
-    let minAt = Math.floor(song.startTime / 60)
-    if (minAt < 10) {
-        minAt = "0" + minAt
-    }
-    let secAt = song.startTime % 60
-    if (secAt < 10) {
-        secAt = "0" + secAt
-    }
-    let playAt = `t=00:${minAt}:${secAt}`
-    let uri = await path_join(game.songsLocation, song.soundFile)
-    uri += "#" + playAt
-    console.log(uri)
-    return uri
-}
+// previous function for streaming songs
+// async function createSongUri(song) {
+//     let minAt = Math.floor(song.startTime / 60)
+//     if (minAt < 10) {
+//         minAt = "0" + minAt
+//     }
+//     let secAt = song.startTime % 60
+//     if (secAt < 10) {
+//         secAt = "0" + secAt
+//     }
+//     let playAt = `t=00:${minAt}:${secAt}`
+//     let uri = await path_join(game.songsLocation, song.soundFile)
+//     uri += "#" + playAt
+//     console.log(uri)
+//     return uri
+// }
 
 export default function Game() {
     let incomingTeams = localStorage.getItem('teams')
