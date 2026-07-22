@@ -1,8 +1,7 @@
 import { render } from 'preact'
-// import path from 'path'
 import { useState, useEffect } from 'preact/hooks'
 import { $, $$$, range, GameData, Song, Category } from '../js/helpers.js'
-import { signal } from '@preact/signals'
+import { Link, Route } from 'wouter-preact'
 // import * as Settings from '../settings.js'
 import '../css/dataViewer.css'
 import { fs_readdir, fs_readFile, fs_writeFile } from '@app/preload'
@@ -82,7 +81,6 @@ function DataTableRows(props) {
     let [albumsFileOptions, setAlbumsFileOptions] = useState([])
     let [bgsFileOptions, setBgsFileOptions] = useState([])
     let [songsFileOptions, setSongsFileOptions] = useState([])
-    // console.log(props.gameType)
 
     useEffect(async () => {
         if (!('root' in props.gameData)) { return }
@@ -391,11 +389,13 @@ export default function DataViewer() {
         }
     }
 
-    let GamesOptions = gamesFound.map((item) => {
-        return (
-            <option value={item}>{item}</option>
-        )
-    })
+    let GamesOptions = () => {
+        gamesFound.map((item) => {
+            return (
+                <option value={item}>{item}</option>
+            )
+        })
+    }
 
     // let keylogger = 
     // }
@@ -439,7 +439,8 @@ export default function DataViewer() {
             </div>
             <div id='file-loading-zone' class='options-zone'>
                 <div id='file-loading-eyecatch'>
-                    hi
+                    <Link href='/'>&#8592; // To Title</Link>
+                    <div>write you file</div>
                 </div>
                 <div id='file-loading-ops'>
                     <div class='label-inputs'>
@@ -451,7 +452,7 @@ export default function DataViewer() {
                         <div class='file-loading-label'>select game: </div>
                         <select id='game-folder-select' onChange={readJson}>
                             <option value></option>
-                            {GamesOptions}
+                            <GamesOptions />
                         </select>
                         <input type='button' value='recheck folders' onClick={e => setRecheckFoldersCount(recheckFoldersCount + 1)} />
                     </div>
@@ -482,26 +483,6 @@ export default function DataViewer() {
                             </select>
                         </div>
                     </div>
-                    {/* <div>
-                        <label for='countdown'>Countdown between selecting a category and song starts playing:</label>
-                        <input id='countdown-input' name='coundown' type='text' value={gameData.countdown} />
-                    </div>
-                    <div>
-                        <label for='duration'>Default song duration:</label>
-                        <input id='duration-input' name='duration' type='text' value={gameData.defaultDuration} />
-                    </div>
-                    <div>
-                        <label for='autoReveal'>Auto Reveal Song Info after duration expires?</label>
-                        <input id='autoReveal-input' name='autoReveal' type='checkbox' checked={gameData.autoReveal} />
-                    </div>
-                    <div>
-                        <label for='gameType'>Metadata Labels</label>
-                        <select id='gameType-input' onChange={e => setGameType(e.target.value) }>
-                            <option value='game'>Use Composer/Game</option>
-                            <option value='music'>Use Artist/Album</option>
-                            <option value='both'>Use Both</option>
-                        </select>
-                    </div> */}
                 </fieldset>
             </div>
             <fieldset>
@@ -512,7 +493,6 @@ export default function DataViewer() {
                             <th>delete</th>
                             <th>title</th>
                             <MetadataTags gameType={gameType} />
-                            {/* {metadataTags()} */}
                             <th>year</th>
                             <th>sound file</th>
                             <th>start time</th>
