@@ -3,6 +3,9 @@ name: Compile and test
 on:
   workflow_call:
     inputs:
+      project-name:
+        required: true
+        type: string
       renderer-template:
         description: Define what vite template should be used to create renderer in case if renderer package doesn't exist
         required: false
@@ -80,5 +83,10 @@ jobs:
       - name: Upload compiled app
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.os }}-${{inputs.distribution-channel}}
+          name: ${{ inputs.project-name }}-${{ matrix.os }}
+          # BunsMusicBattle-macos-15-intel
+          # BunsMusicBattle-macos-latest
+          # BunsMusicBattle-windows-latest
+          # BunsMusicBattle-ubuntu-latest
+          # name: ${{ matrix.os }}-${{inputs.distribution-channel}}
           path: dist
