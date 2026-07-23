@@ -35,7 +35,7 @@ jobs:
       PROJECT_NAME: ${{ steps.PROJECT_NAME.outputs.PROJECT_NAME }}
       APP_VERSION: ${{ steps.APP_VERSION.outputs.APP_VERSION }}
       COMMIT_TIMESTAMP: ${{ steps.COMMIT_TIMESTAMP.outputs.COMMIT_TIMESTAMP }}
-      # APP_FULL_VERSION: ${{ steps.APP_FULL_VERSION.outputs.APP_FULL_VERSION }}
+      APP_FULL_VERSION: ${{ steps.APP_FULL_VERSION.outputs.APP_FULL_VERSION }}
     steps:
       - uses: actions/checkout@v6
       - id: COMMIT_TIMESTAMP
@@ -43,17 +43,14 @@ jobs:
       - id: APP_VERSION
         run: echo "APP_VERSION=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
       - id: PROJECT_NAME
-        run: echo "PROJECT_NAME=$(jq -r .name package.json) >> $GITHUB_OUTPUT"
-      # - id: APP_FULL_VERSION
-        # run: echo "APP_FULL_VERSION=${{ steps.APP_VERSION.outputs.APP_VERSION }}-preact.${{ steps.COMMIT_TIMESTAMP.outputs.COMMIT_TIMESTAMP }}" >> $GITHUB_OUTPUT
-      # - run: |
-      #     echo "- \`COMMIT_TIMESTAMP\`: ${{ steps.COMMIT_TIMESTAMP.outputs.COMMIT_TIMESTAMP }}" >> $GITHUB_STEP_SUMMARY
-      #     echo "- \`APP_VERSION\`: ${{ steps.APP_VERSION.outputs.APP_VERSION }}" >> $GITHUB_STEP_SUMMARY
-      #     echo "- \`APP_FULL_VERSION\`: ${{ steps.APP_FULL_VERSION.outputs.APP_FULL_VERSION }}" >> $GITHUB_STEP_SUMMARY
+        run: echo "PROJECT_NAME=$(jq -r .name package.json)" >> $GITHUB_OUTPUT
+      - id: APP_FULL_VERSION
+        run: echo "APP_FULL_VERSION=${{ steps.APP_VERSION.outputs.APP_VERSION }}-${{ steps.COMMIT_TIMESTAMP.outputs.COMMIT_TIMESTAMP }}" >> $GITHUB_OUTPUT
       - run: |
           echo "- \`PROJECT_NAME\`: ${{ steps.PROJECT_NAME.outputs.PROJECT_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "- \`COMMIT_TIMESTAMP\`: ${{ steps.COMMIT_TIMESTAMP.outputs.COMMIT_TIMESTAMP }}" >> $GITHUB_STEP_SUMMARY
           echo "- \`APP_VERSION\`: ${{ steps.APP_VERSION.outputs.APP_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- \`APP_FULL_VERSION\`: ${{ steps.APP_FULL_VERSION.outputs.APP_FULL_VERSION }}" >> $GITHUB_STEP_SUMMARY
 
   compile-and-test:
     needs:
@@ -67,7 +64,7 @@ jobs:
       project-name: ${{ needs.prepare.outputs.PROJECT_NAME }}
       renderer-template: preact
       app-version: ${{ needs.prepare.outputs.APP_VERSION }}
-      # app-version: ${{ needs.prepare.outputs.APP_FULL_VERSION }}
+      app-full-version: ${{ needs.prepare.outputs.APP_FULL_VERSION }}
       distribution-channel: preact
 
   deploy:
@@ -82,4 +79,4 @@ jobs:
       project-name: ${{ needs.prepare.outputs.PROJECT_NAME }}
       distribution-channel: preact
       app-version: ${{ needs.prepare.outputs.APP_VERSION }}
-      # app-version: ${{ needs.prepare.outputs.APP_FULL_VERSION }}
+      app-full-version: ${{ needs.prepare.outputs.APP_FULL_VERSION }}
