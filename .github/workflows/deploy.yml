@@ -44,14 +44,46 @@ jobs:
         working-directory: ./
       - run: ls -la dist
         working-directory: ./
-      
-      # - name: zip linux folder
-      #   uses: somaz94/compress-decompress@v1
-      #   with:
-      #     command: compress
-      #     source: 
-      #   if 
 
-      # - run: gh release create v${{inputs.app-version}} dist/${{inputs.project-name}}* dist/latest*.yml --repo ${{github.repository}}
+      - name: zip mac x86 folder
+        uses: somaz94/compress-decompress@v1
+        with:
+          command: compress
+          source: ./dist/mac
+          format: zip
+          dest: ./unsigned
+          destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-mac-x86
+      
+      - name: zip mac arm folder
+        uses: somaz94/compress-decompress@v1
+        with:
+          command: compress
+          source: ./dist/mac-arm64
+          format: zip
+          dest: ./unsigned
+          destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-mac-arm64
+      
+      - name: zip linux folder
+        uses: somaz94/compress-decompress@v1
+        with:
+          command: compress
+          source: ./dist/linux-unpacked
+          format: zip
+          dest: ./unsigned
+          destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-ubuntu
+
+      - name: zip windows folder
+        uses: somaz94/compress-decompress@v1
+        with:
+          command: compress
+          source: ./dist/win-unpacked
+          format: zip
+          dest: ./unsigned
+          destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-windows
+      
+      - run: ls -la unsigned
+        working-directory: ./
+
+      # - run: gh release create v${{inputs.app-version}} unsigned/${{inputs.project-name}}* dist/latest*.yml --repo ${{github.repository}}
       #   env:
       #     GH_TOKEN: ${{ github.token }}
