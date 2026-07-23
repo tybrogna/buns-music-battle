@@ -14,7 +14,7 @@ on:
       app-version:
         required: true
         type: string
-      app-full-version:
+      timestamp:
         required: true
         type: string
       distribution-channel:
@@ -69,7 +69,7 @@ jobs:
       #   working-directory: ./
 
       - run: npm version
-      - run: npm version "${{inputs.app-version}}-${{inputs.app-full-version}}" --no-git-tag-version
+      - run: npm version "${{inputs.app-version}}-${{inputs.timestamp}}" --no-git-tag-version
       - run: npm run compile -- -p never
         env:
           VITE_DISTRIBUTION_CHANNEL: ${{inputs.distribution-channel}}
