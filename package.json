@@ -1,7 +1,7 @@
 {
   "name": "BunsMusicBattle",
   "description": "Music guessing quiz show for local play with owned music files. Based on cawa-93 and contributor's vite-electron-builder.",
-  "version": "1.1",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "author": {
