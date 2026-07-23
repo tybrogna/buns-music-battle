@@ -1,11 +1,11 @@
 {
   "name": "BunsMusicBattle",
-  "description": "Secure boilerplate for Electron app based on Vite",
-  "version": "3.1.0",
+  "description": "Music guessing quiz show for local play with owned music files. Based on cawa-93 and contributor's vite-electron-builder.",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "author": {
-    "email": "kozackunisoft@gmail.com",
+    "email": "kozackunisoft@gmail.com, tybrogna@gmail.com",
     "name": "Alex Kozack, Tyler Brogna",
     "url": "https://kozack.me, https://tybrogna.github.io"
   },
