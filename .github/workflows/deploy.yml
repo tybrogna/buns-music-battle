@@ -44,7 +44,8 @@ jobs:
         working-directory: ./
       - run: ls -la dist
         working-directory: ./
-      
+      - run: mkdir unsigned
+
       - name: zip mac x86 without a docker container (the year is 20XX)
         run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-mac-x86 ./dist/mac
 
