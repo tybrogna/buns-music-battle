@@ -44,42 +44,54 @@ jobs:
         working-directory: ./
       - run: ls -la dist
         working-directory: ./
-
-      - name: zip mac x86 folder
-        uses: somaz94/compress-decompress@v1
-        with:
-          command: compress
-          source: ./dist/mac
-          format: zip
-          dest: ./unsigned
-          destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-mac-x86
       
-      - name: zip mac arm folder
-        uses: somaz94/compress-decompress@v1
-        with:
-          command: compress
-          source: ./dist/mac-arm64
-          format: zip
-          dest: ./unsigned
-          destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-mac-arm64
-      
-      - name: zip linux folder
-        uses: somaz94/compress-decompress@v1
-        with:
-          command: compress
-          source: ./dist/linux-unpacked
-          format: zip
-          dest: ./unsigned
-          destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-ubuntu
+      - name: zip mac x86 without a docker container (the year is 20XX)
+        run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-mac-x86 ./dist/mac
 
-      - name: zip windows folder
-        uses: somaz94/compress-decompress@v1
-        with:
-          command: compress
-          source: ./dist/win-unpacked
-          format: zip
-          dest: ./unsigned
-          destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-windows
+      - name: zip mac arm without a docker container (the year is 20XX)
+        run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-mac-arm64 ./dist/mac-arm64
+      
+      - name: zip linux without a docker container (the year is 20XX)
+        run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-ubuntu ./dist/linux-unpacked
+
+      - name: zip windows without a docker container (the year is 20XX)
+        run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-windows ./dist/win-unpacked
+
+      # - name: zip mac x86 folder
+      #   uses: somaz94/compress-decompress@v1
+      #   with:
+      #     command: compress
+      #     source: ./dist/mac
+      #     format: zip
+      #     dest: ./unsigned
+      #     destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-mac-x86
+      
+      # - name: zip mac arm folder
+      #   uses: somaz94/compress-decompress@v1
+      #   with:
+      #     command: compress
+      #     source: ./dist/mac-arm64
+      #     format: zip
+      #     dest: ./unsigned
+      #     destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-mac-arm64
+      
+      # - name: zip linux folder
+      #   uses: somaz94/compress-decompress@v1
+      #   with:
+      #     command: compress
+      #     source: ./dist/linux-unpacked
+      #     format: zip
+      #     dest: ./unsigned
+      #     destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-ubuntu
+
+      # - name: zip windows folder
+      #   uses: somaz94/compress-decompress@v1
+      #   with:
+      #     command: compress
+      #     source: ./dist/win-unpacked
+      #     format: zip
+      #     dest: ./unsigned
+      #     destfilename: ${{inputs.project-name}}-${{inputs.app-version}}-windows
       
       - run: ls -la unsigned
         working-directory: ./
