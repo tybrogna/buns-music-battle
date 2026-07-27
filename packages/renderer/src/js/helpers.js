@@ -88,23 +88,23 @@ export function objectSort(obj, member) {
 
 export function objIsEmpty(obj) {
     if (obj == null) {
-        return false
+        return true
     }
 
     if (typeof obj !== 'object') {
-        return false
+        return true
     }
 
     if (Object.keys(obj).length == 0) {
-        return false
+        return true
     }
 
-    return true
+    return false
 }
 
 export async function readSettings(settings) {
     let settingsInFolder = (await fs_readdir('./')).includes('settings.json')
-    if (!objIsEmpty(settings) && settingsInFolder) {
+    if (objIsEmpty(settings) && settingsInFolder) {
         let jsonData = await fs_readFile('./settings.json')
         return await JSON.parse(new TextDecoder().decode(jsonData))
     }
