@@ -1,16 +1,17 @@
 import { render } from 'preact'
 import { useState, useEffect } from 'preact/hooks'
-import { $, $$$, range } from '../js/helpers.js'
-import { process_platform, os_userInfo, fs_readdir, path_join } from '@app/preload'
+import { $, $$$, range, readSettings } from '../js/helpers.js'
+import { process_platform, os_userInfo, fs_readdir, path_join, fs_readFile, fs_writeFile } from '@app/preload'
 import { Link, Route } from 'wouter-preact'
 import { useHashLocation } from 'wouter-preact/use-hash-location'
 import headerLogo from '../../imgs/logo.webp'
-// import * as Settings from '../settings.js'
 import '../css/landing.css'
 
 import DataViewer from './dataViewer.jsx'
 import FileTest from './fileTest.jsx'
 import MusicTest from './musicTest.jsx'
+
+let settings = {}
 
 function LogoBox(props) {
     return (
@@ -67,12 +68,21 @@ function GameSelect() {
     let [ gamesFound, setGamesFound ] = useState([])
 
     let checkFolderForGames = async () => {
-        let foundFiles = await fs_readdir($('#folder-location-input').value)
-        setGamesFound(foundFiles)
+        let inputLoc = $('#game-location-input').value
+        settings.gamesLocation = inputLoc
+        await fs_writeFile('./settings.json', settings)
+        let foundFiles = await fs_readdir($('#game-location-input').value)
+        if (foundFiles != "") {
+            setGamesFound(foundFiles)
+        }
     }
 
     useEffect(async () => {
-        await checkFolderForGames()
+        settings = await readSettings(settings)
+        if ('gamesLocation' in settings) {
+            $('#game-location-input').value = settings.gamesLocation
+            await checkFolderForGames()
+        }
     }, [])
 
     let Options = () => {
@@ -89,7 +99,7 @@ function GameSelect() {
 
     return (
         <>
-        <input id='folder-location-input' type='text' defaultValue={''}/>
+        <input id='game-location-input' type='text' defaultValue={''}/>
         <input type="button" value="check for new games" onClick={checkFolderForGames} />
         <select id='game-folder-select'>
             <Options />
@@ -147,7 +157,7 @@ async function startGame(event) {
         return
     }
 
-    let gameFolderLocation = await path_join($('#folder-location-input').value, gameFolder)
+    let gameFolderLocation = await path_join($('#game-location-input').value, gameFolder)
 
     console.log(gameFolderLocation)
 
