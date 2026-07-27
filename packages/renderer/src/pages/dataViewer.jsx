@@ -1,12 +1,12 @@
 import { render } from 'preact'
-// import path from 'path'
 import { useState, useEffect } from 'preact/hooks'
-import { $, $$$, range, GameData, Song, Category } from '../js/helpers.js'
-import { signal } from '@preact/signals'
+import { $, $$$, range, GameData, Song, Category, readSettings } from '../js/helpers.js'
+import { Link, Route } from 'wouter-preact'
 // import * as Settings from '../settings.js'
 import '../css/dataViewer.css'
 import { fs_readdir, fs_readFile, fs_writeFile } from '@app/preload'
 
+let settings = {}
 let defaultLocation = "./games/test-game"
 let defaultJson = "./data/data.json"
 let gameData = GameData()
@@ -82,7 +82,6 @@ function DataTableRows(props) {
     let [albumsFileOptions, setAlbumsFileOptions] = useState([])
     let [bgsFileOptions, setBgsFileOptions] = useState([])
     let [songsFileOptions, setSongsFileOptions] = useState([])
-    // console.log(props.gameType)
 
     useEffect(async () => {
         if (!('root' in props.gameData)) { return }
@@ -349,7 +348,6 @@ export default function DataViewer() {
         }
         let filesInFolder = await fs_readdir(`${root}/${selectedFolder}`)
         let jsonFile = filesInFolder.filter(item => item.endsWith('.json'))[0]  // first json file in folder
-        // console.log(`${root}\\${selectedFolder}\\${jsonFile}`)
         let jsonData = await fs_readFile(`${root}/${selectedFolder}/${jsonFile}`)
         gameData = await JSON.parse(new TextDecoder().decode(jsonData))
         gameData.root = root
@@ -357,50 +355,31 @@ export default function DataViewer() {
         setSelectedLocation(selectedFolder)
     }
 
-    // Todo: fix this
-    // let reload = async function(target) {
-    //     setSelectedGame(false)
-    //     let foundFiles = await fs_readdir($('#folder-location-input').value)
-    //     let jsonFile = filesInFolder.filter(item => item.endsWith('.json'))[0]  // first json file in folder
-    //     let jsonData = await fs_readFile(`${location}\${jsonFile}`)
-    //     gameData = jsonData
-    //     setSelectedGame(true)
-    // }
-
-    // let pickDirectory = async () => {
-    //     let handle = await window.showDirectoryPicker()
-    //     let sfsd = []
-    //     for await (let folder of handle.values()) {
-    //         console.log(folder)
-    //         for await (let findFile of folder.values()) {
-    //             console.log(findFile)
-    //             if (findFile.name.endsWith('.json')) {
-    //                 console.log('got one: ' + folder.name + '/' + findFile.name)
-    //                 console.log(sfsd)
-    //                 sfsd.push([folder.name, findFile])
-    //             }
-    //         }
-    //     }
-    //     setGamesFound(sfsd)
-    // }
-
     let checkFolderForGames = async () => {
         let filesInFolder = await fs_readdir($('#game-location-input').value)
+        settings.gamesLocation = $('#game-location-input').value
+        await fs_writeFile('./settings.json', settings)
         if (filesInFolder != "") {
             setGamesFound(filesInFolder)
         }
     }
 
-    let GamesOptions = gamesFound.map((item) => {
-        return (
-            <option value={item}>{item}</option>
-        )
-    })
+    let GamesOptions = () => {
+        return gamesFound.map((item) => {
+            return (
+                <>
+                <option value={item}>{item}</option>
+                </>
+            )
+        })
+    }
 
-    // let keylogger = 
-    // }
-
-    useEffect(() => {
+    /**
+     * run once effect
+     * sets up a ctrl+s keydown event,
+     * runs the initial check for a saved settings location
+     */
+    useEffect(async () => {
         window.addEventListener('keydown', async (e) => {
             if (e.ctrlKey && e.keyCode == 83 && !saving) {  // ctrl + s
                 console.log('keylogger', saving)
@@ -408,8 +387,20 @@ export default function DataViewer() {
                 $('#pop-up-overlay').style.display = 'block'
             }
         })
+
+        settings = await readSettings(settings)
+        if ('gamesLocation' in settings) {
+            $('#game-location-input').value = settings.gamesLocation
+            console.log(settings)
+            await checkFolderForGames()
+        }
     }, [])
 
+    /**
+     * effect that runs when saving.
+     * makes a little box appear in the bottom left corner when saving is triggered
+     * the box will disappear after 3 seconds
+     */
     useEffect(() => {
         // console.log('use effect', saving)
         if (saving == 'ok') {
@@ -439,7 +430,8 @@ export default function DataViewer() {
             </div>
             <div id='file-loading-zone' class='options-zone'>
                 <div id='file-loading-eyecatch'>
-                    hi
+                    <Link href='/'>&#8592; // To Title</Link>
+                    <div>write you file</div>
                 </div>
                 <div id='file-loading-ops'>
                     <div class='label-inputs'>
@@ -451,7 +443,7 @@ export default function DataViewer() {
                         <div class='file-loading-label'>select game: </div>
                         <select id='game-folder-select' onChange={readJson}>
                             <option value></option>
-                            {GamesOptions}
+                            <GamesOptions />
                         </select>
                         <input type='button' value='recheck folders' onClick={e => setRecheckFoldersCount(recheckFoldersCount + 1)} />
                     </div>
@@ -482,26 +474,6 @@ export default function DataViewer() {
                             </select>
                         </div>
                     </div>
-                    {/* <div>
-                        <label for='countdown'>Countdown between selecting a category and song starts playing:</label>
-                        <input id='countdown-input' name='coundown' type='text' value={gameData.countdown} />
-                    </div>
-                    <div>
-                        <label for='duration'>Default song duration:</label>
-                        <input id='duration-input' name='duration' type='text' value={gameData.defaultDuration} />
-                    </div>
-                    <div>
-                        <label for='autoReveal'>Auto Reveal Song Info after duration expires?</label>
-                        <input id='autoReveal-input' name='autoReveal' type='checkbox' checked={gameData.autoReveal} />
-                    </div>
-                    <div>
-                        <label for='gameType'>Metadata Labels</label>
-                        <select id='gameType-input' onChange={e => setGameType(e.target.value) }>
-                            <option value='game'>Use Composer/Game</option>
-                            <option value='music'>Use Artist/Album</option>
-                            <option value='both'>Use Both</option>
-                        </select>
-                    </div> */}
                 </fieldset>
             </div>
             <fieldset>
@@ -512,7 +484,6 @@ export default function DataViewer() {
                             <th>delete</th>
                             <th>title</th>
                             <MetadataTags gameType={gameType} />
-                            {/* {metadataTags()} */}
                             <th>year</th>
                             <th>sound file</th>
                             <th>start time</th>
