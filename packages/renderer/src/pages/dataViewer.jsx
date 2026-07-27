@@ -1,11 +1,12 @@
 import { render } from 'preact'
 import { useState, useEffect } from 'preact/hooks'
-import { $, $$$, range, GameData, Song, Category } from '../js/helpers.js'
+import { $, $$$, range, GameData, Song, Category, readSettings } from '../js/helpers.js'
 import { Link, Route } from 'wouter-preact'
 // import * as Settings from '../settings.js'
 import '../css/dataViewer.css'
 import { fs_readdir, fs_readFile, fs_writeFile } from '@app/preload'
 
+let settings = {}
 let defaultLocation = "./games/test-game"
 let defaultJson = "./data/data.json"
 let gameData = GameData()
@@ -347,7 +348,6 @@ export default function DataViewer() {
         }
         let filesInFolder = await fs_readdir(`${root}/${selectedFolder}`)
         let jsonFile = filesInFolder.filter(item => item.endsWith('.json'))[0]  // first json file in folder
-        // console.log(`${root}\\${selectedFolder}\\${jsonFile}`)
         let jsonData = await fs_readFile(`${root}/${selectedFolder}/${jsonFile}`)
         gameData = await JSON.parse(new TextDecoder().decode(jsonData))
         gameData.root = root
@@ -355,52 +355,31 @@ export default function DataViewer() {
         setSelectedLocation(selectedFolder)
     }
 
-    // Todo: fix this
-    // let reload = async function(target) {
-    //     setSelectedGame(false)
-    //     let foundFiles = await fs_readdir($('#folder-location-input').value)
-    //     let jsonFile = filesInFolder.filter(item => item.endsWith('.json'))[0]  // first json file in folder
-    //     let jsonData = await fs_readFile(`${location}\${jsonFile}`)
-    //     gameData = jsonData
-    //     setSelectedGame(true)
-    // }
-
-    // let pickDirectory = async () => {
-    //     let handle = await window.showDirectoryPicker()
-    //     let sfsd = []
-    //     for await (let folder of handle.values()) {
-    //         console.log(folder)
-    //         for await (let findFile of folder.values()) {
-    //             console.log(findFile)
-    //             if (findFile.name.endsWith('.json')) {
-    //                 console.log('got one: ' + folder.name + '/' + findFile.name)
-    //                 console.log(sfsd)
-    //                 sfsd.push([folder.name, findFile])
-    //             }
-    //         }
-    //     }
-    //     setGamesFound(sfsd)
-    // }
-
     let checkFolderForGames = async () => {
         let filesInFolder = await fs_readdir($('#game-location-input').value)
+        settings.gamesLocation = $('#game-location-input').value
+        await fs_writeFile('./settings.json', settings)
         if (filesInFolder != "") {
             setGamesFound(filesInFolder)
         }
     }
 
     let GamesOptions = () => {
-        gamesFound.map((item) => {
+        return gamesFound.map((item) => {
             return (
+                <>
                 <option value={item}>{item}</option>
+                </>
             )
         })
     }
 
-    // let keylogger = 
-    // }
-
-    useEffect(() => {
+    /**
+     * run once effect
+     * sets up a ctrl+s keydown event,
+     * runs the initial check for a saved settings location
+     */
+    useEffect(async () => {
         window.addEventListener('keydown', async (e) => {
             if (e.ctrlKey && e.keyCode == 83 && !saving) {  // ctrl + s
                 console.log('keylogger', saving)
@@ -408,8 +387,20 @@ export default function DataViewer() {
                 $('#pop-up-overlay').style.display = 'block'
             }
         })
+
+        settings = await readSettings(settings)
+        if ('gamesLocation' in settings) {
+            $('#game-location-input').value = settings.gamesLocation
+            console.log(settings)
+            await checkFolderForGames()
+        }
     }, [])
 
+    /**
+     * effect that runs when saving.
+     * makes a little box appear in the bottom left corner when saving is triggered
+     * the box will disappear after 3 seconds
+     */
     useEffect(() => {
         // console.log('use effect', saving)
         if (saving == 'ok') {
