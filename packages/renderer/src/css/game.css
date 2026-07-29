@@ -36,12 +36,39 @@
     display: flex;
     flex-wrap: wrap;
     align-content: space-between;
+    gap: 8px;
 }
 
 .category-tile-flex-item {
+    position: relative;
     max-width: 30%;
     flex: 1 1 20%;
-    cursor:pointer;
+    cursor: pointer;
+    height: 20em;
+    max-height: 20%;
+}
+
+.category-tile-img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    opacity: .45;
+}
+
+
+.category-tile-flex-item div {
+    position: absolute;
+    text-align: center;
+    left: 5%;
+    right: 5%;
+}
+
+.category-tile-floating-name {
+    top: 30%;
+}
+
+.category-tile-floating-count {
+    top: 70%;
 }
 
 .teams-zone {

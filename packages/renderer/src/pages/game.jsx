@@ -3,7 +3,7 @@ import { render } from 'preact'
 import { useState, useEffect, useRef } from 'preact/hooks'
 import { Link, Route } from 'wouter-preact'
 import { $, $$$, delay, range, Song, shuffle } from '../js/helpers.js'
-import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join } from '@app/preload'
+import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join, path_normalize } from '@app/preload'
 
 import '../css/game.css'
 
@@ -102,10 +102,10 @@ function GameScreen() {
         )
     } else {
         console.log('game screen rerender')
-        let categories = game.music.map(cat => cat.name)
+        // let categories = game.music.map(cat => [cat.name, cat.tileImg])
         return (
             <div className='shell'>
-                <CategoryGrid categories={categories} selectFunc={selectCategory} />
+                <CategoryGrid categories={game.music} selectFunc={selectCategory} />
                 <Teams />
                 <div id='player-overlay' onClick={closeOverlay}>
                     <PlayerToggle />
@@ -119,12 +119,12 @@ function GameScreen() {
 }
 
 function CategoryGrid(props) {
-    let catNames = props.categories
+    // let catego = props.categories
     //give the categories random colors
 
-    let CategoryTiles = () => catNames.map((catName) => { 
+    let CategoryTiles = () => props.categories.map(cat => {
         return (
-            <CategoryTile title={catName} selectFunc={props.selectFunc} />
+            <CategoryTile category={cat} selectFunc={props.selectFunc} />
         )
     })
 
@@ -139,9 +139,21 @@ function CategoryGrid(props) {
 }
 
 function CategoryTile(props) {
-    let remaining = unplayedSongs(props.title).length
-    let id = props.title + '-tile'
-    let labelText = `${props.title} -- ${remaining}`
+    console.log(props)
+    let [ bgUrl, setBgUrl ] = useState('')
+    let remaining = unplayedSongs(props.category.name).length
+    let id = props.category.name + '-tile'
+    let labelText = `${props.category.name} -- ${remaining}`
+
+    useEffect(async () => {
+        let bgLocation = await path_join(game.backgroundsLocation, props.category.tileImg)
+        bgLocation = 'asset:///' + bgLocation
+        setBgUrl(bgLocation)
+    })
+
+    let createBackgroundUrl = async () => {
+        // let bgLocation = game.backgroundsLocation + '\\' + props.category.tileImg
+    }
 
     // when you click on a category tile, send the category title to the function passed down
     //   this will open the overlay and play the song
@@ -149,12 +161,14 @@ function CategoryTile(props) {
         if (remaining <= 0) {
             return
         }
-        props.selectFunc(props.title)
+        props.selectFunc(props.category.name)
     }
 
     return (
-        <div id={id} class='category-tile-flex-item border-1' onClick={playSong}>
-            {labelText}
+        <div id={id} class='category-tile-flex-item border-1' onClick={playSong} >
+            <img class='category-tile-img' src={bgUrl}></img>
+            <div class='category-tile-floating-name'>{props.category.name}</div>
+            <div class='category-tile-floating-count'>{remaining} Left</div>
         </div>
     )
 }
