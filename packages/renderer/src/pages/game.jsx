@@ -30,7 +30,8 @@ function GameScreen() {
         game.songsLocation = await path_join(selectedGameFolder, 'songs')
         game.albumsLocation = await path_join(selectedGameFolder, 'albums')
         game.backgroundsLocation = await path_join(selectedGameFolder, 'bgs')
-        game.music.forEach(category => {
+        game.music.forEach((category, idx) => {
+            category['id'] = 'c' + idx
             category.songs.forEach(song => {
                 if (song.composer == null) {
                     song.composer = ""
@@ -60,7 +61,6 @@ function GameScreen() {
         let song = shuffle(choices)[0]
         song.played = true
         setActiveCategory(category)
-        console.log(song)
         setActiveSong(song)
         $('#player-overlay').style.display = 'block'
     }
@@ -73,7 +73,7 @@ function GameScreen() {
         $('#player-overlay').style.display = 'none'
 
         if (activeCategory && unplayedSongs(activeCategory).length == 0) {
-            $(`#${activeCategory}-tile`).style.background = 'grey'
+            $(`#${activeCategory}`).style.background = 'grey'
         }
 
         setActiveCategory(null)
@@ -105,6 +105,7 @@ function GameScreen() {
         // let categories = game.music.map(cat => [cat.name, cat.tileImg])
         return (
             <div className='shell'>
+                {/* <Background /> */}
                 <CategoryGrid categories={game.music} selectFunc={selectCategory} />
                 <Teams />
                 <div id='player-overlay' onClick={closeOverlay}>
@@ -116,6 +117,14 @@ function GameScreen() {
             </div>
         )
     }
+}
+
+function Background() {
+    return (
+        <div class='background-overlay'>
+
+        </div>
+    )
 }
 
 function CategoryGrid(props) {
@@ -139,15 +148,13 @@ function CategoryGrid(props) {
 }
 
 function CategoryTile(props) {
-    console.log(props)
     let [ bgUrl, setBgUrl ] = useState('')
-    let remaining = unplayedSongs(props.category.name).length
-    let id = props.category.name + '-tile'
+    let remaining = unplayedSongs(props.category.id).length
     let labelText = `${props.category.name} -- ${remaining}`
 
     useEffect(async () => {
         let bgLocation = await path_join(game.backgroundsLocation, props.category.tileImg)
-        bgLocation = 'asset:///' + bgLocation
+        bgLocation = 'background-image: url(asset:///' + bgLocation + ')'
         setBgUrl(bgLocation)
     })
 
@@ -161,12 +168,13 @@ function CategoryTile(props) {
         if (remaining <= 0) {
             return
         }
-        props.selectFunc(props.category.name)
+        props.selectFunc(props.category.id)
     }
 
     return (
-        <div id={id} class='category-tile-flex-item border-1' onClick={playSong} >
-            <img class='category-tile-img' src={bgUrl}></img>
+        <div id={props.category.id} style={bgUrl} class='category-tile-flex-item border-1' onClick={playSong} >
+            <div class='css-cross'></div>
+            <img class='category-tile-img' src={bgUrl.substring(bgUrl.indexOf('(') +1, bgUrl.lastIndexOf(')'))}></img>
             <div class='category-tile-floating-name'>{props.category.name}</div>
             <div class='category-tile-floating-count'>{remaining} Left</div>
         </div>
@@ -332,9 +340,9 @@ function SongInfo(props) {
 }
 
 function unplayedSongs(category) {
-    if (game == null || game.music == null ||category == null || category == "")
+    if (game == null || game.music == null || category == null || category == "")
         return
-    let cat = game.music.filter(cat => cat.name == category)[0]
+    let cat = game.music.filter(cat => cat.id == category)[0]
     return cat.songs.filter(song => !song.played)
 }
 
