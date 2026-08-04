@@ -28,7 +28,16 @@ export function os_userInfo() {
 }
 
 export async function path_join(...args: [string]) {
-    return path.join(...args)
+    let madePath = path.join(...args)
+    return madePath.replaceAll(path.win32.sep, path.posix.sep)
+}
+
+export async function path_normalize(loc: string) {
+    return path.normalize(loc)
+}
+
+export async function path_format(obj: object) {
+    return path.format(obj)
 }
 
 export async function fs_readdir(location: string) {

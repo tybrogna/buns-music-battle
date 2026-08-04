@@ -3,7 +3,7 @@ import { render } from 'preact'
 import { useState, useEffect, useRef } from 'preact/hooks'
 import { Link, Route } from 'wouter-preact'
 import { $, $$$, delay, range, Song, shuffle } from '../js/helpers.js'
-import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join } from '@app/preload'
+import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join, path_normalize } from '@app/preload'
 
 import '../css/game.css'
 
@@ -30,7 +30,8 @@ function GameScreen() {
         game.songsLocation = await path_join(selectedGameFolder, 'songs')
         game.albumsLocation = await path_join(selectedGameFolder, 'albums')
         game.backgroundsLocation = await path_join(selectedGameFolder, 'bgs')
-        game.music.forEach(category => {
+        game.music.forEach((category, idx) => {
+            category['id'] = 'c' + idx
             category.songs.forEach(song => {
                 if (song.composer == null) {
                     song.composer = ""
@@ -60,7 +61,6 @@ function GameScreen() {
         let song = shuffle(choices)[0]
         song.played = true
         setActiveCategory(category)
-        console.log(song)
         setActiveSong(song)
         $('#player-overlay').style.display = 'block'
     }
@@ -73,7 +73,7 @@ function GameScreen() {
         $('#player-overlay').style.display = 'none'
 
         if (activeCategory && unplayedSongs(activeCategory).length == 0) {
-            $(`#${activeCategory}-tile`).style.background = 'grey'
+            $(`#${activeCategory}`).style.background = 'grey'
         }
 
         setActiveCategory(null)
@@ -102,10 +102,11 @@ function GameScreen() {
         )
     } else {
         console.log('game screen rerender')
-        let categories = game.music.map(cat => cat.name)
+        // let categories = game.music.map(cat => [cat.name, cat.tileImg])
         return (
             <div className='shell'>
-                <CategoryGrid categories={categories} selectFunc={selectCategory} />
+                {/* <Background /> */}
+                <CategoryGrid categories={game.music} selectFunc={selectCategory} />
                 <Teams />
                 <div id='player-overlay' onClick={closeOverlay}>
                     <PlayerToggle />
@@ -118,13 +119,21 @@ function GameScreen() {
     }
 }
 
+function Background() {
+    return (
+        <div class='background-overlay'>
+
+        </div>
+    )
+}
+
 function CategoryGrid(props) {
-    let catNames = props.categories
+    // let catego = props.categories
     //give the categories random colors
 
-    let CategoryTiles = () => catNames.map((catName) => { 
+    let CategoryTiles = () => props.categories.map(cat => {
         return (
-            <CategoryTile title={catName} selectFunc={props.selectFunc} />
+            <CategoryTile category={cat} selectFunc={props.selectFunc} />
         )
     })
 
@@ -139,9 +148,19 @@ function CategoryGrid(props) {
 }
 
 function CategoryTile(props) {
-    let remaining = unplayedSongs(props.title).length
-    let id = props.title + '-tile'
-    let labelText = `${props.title} -- ${remaining}`
+    let [ bgUrl, setBgUrl ] = useState('')
+    let remaining = unplayedSongs(props.category.id).length
+    let labelText = `${props.category.name} -- ${remaining}`
+
+    useEffect(async () => {
+        let bgLocation = await path_join(game.backgroundsLocation, props.category.tileImg)
+        bgLocation = 'background-image: url(asset:///' + bgLocation + ')'
+        setBgUrl(bgLocation)
+    })
+
+    let createBackgroundUrl = async () => {
+        // let bgLocation = game.backgroundsLocation + '\\' + props.category.tileImg
+    }
 
     // when you click on a category tile, send the category title to the function passed down
     //   this will open the overlay and play the song
@@ -149,12 +168,22 @@ function CategoryTile(props) {
         if (remaining <= 0) {
             return
         }
-        props.selectFunc(props.title)
+        props.selectFunc(props.category.id)
+    }
+
+    let categoryTileClasses = ""
+    if (game.music.length <= 4) {
+        categoryTileClasses = "category-tile category-tile-4"
+    } else if (game.music.length <= 8) {
+        categoryTileClasses = "category-tile category-tile-8"
+    } else {
+        categoryTileClasses = "category-tile category-tile-12"
     }
 
     return (
-        <div id={id} class='category-tile-flex-item border-1' onClick={playSong}>
-            {labelText}
+        <div id={props.category.id} class={categoryTileClasses} style={bgUrl} onClick={playSong} >
+            <div class='category-tile-floating-name'>{props.category.name}</div>
+            <div class='category-tile-floating-count'>{remaining} Left</div>
         </div>
     )
 }
@@ -318,9 +347,9 @@ function SongInfo(props) {
 }
 
 function unplayedSongs(category) {
-    if (game == null || game.music == null ||category == null || category == "")
+    if (game == null || game.music == null || category == null || category == "")
         return
-    let cat = game.music.filter(cat => cat.name == category)[0]
+    let cat = game.music.filter(cat => cat.id == category)[0]
     return cat.songs.filter(song => !song.played)
 }
 
