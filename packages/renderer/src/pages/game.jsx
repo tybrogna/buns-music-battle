@@ -171,10 +171,17 @@ function CategoryTile(props) {
         props.selectFunc(props.category.id)
     }
 
+    let categoryTileClasses = ""
+    if (game.music.length <= 4) {
+        categoryTileClasses = "category-tile category-tile-4"
+    } else if (game.music.length <= 8) {
+        categoryTileClasses = "category-tile category-tile-8"
+    } else {
+        categoryTileClasses = "category-tile category-tile-12"
+    }
+
     return (
-        <div id={props.category.id} style={bgUrl} class='category-tile-flex-item border-1' onClick={playSong} >
-            <div class='css-cross'></div>
-            <img class='category-tile-img' src={bgUrl.substring(bgUrl.indexOf('(') +1, bgUrl.lastIndexOf(')'))}></img>
+        <div id={props.category.id} class={categoryTileClasses} style={bgUrl} onClick={playSong} >
             <div class='category-tile-floating-name'>{props.category.name}</div>
             <div class='category-tile-floating-count'>{remaining} Left</div>
         </div>
