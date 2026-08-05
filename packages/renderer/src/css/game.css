@@ -7,7 +7,7 @@
     min-height: 75vh;
 }
 
-.temp-tile {
+/* .temp-tile {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,7 +15,7 @@
     border: 2px black solid;
     min-height: 5em;
     width: 5em;
-}
+} */
 
 .border-1 {
     border: 1px solid black;
@@ -183,6 +183,7 @@
     position: absolute;
     display: none;
     width: 100%;
+    height: 100%;
     top: 0;
     left: 0;
     right: 0;
@@ -211,4 +212,80 @@
     position: absolute;
     top: 1em;
     left: 1em;
+}
+
+.music-player {
+    position: relative;
+    left: 15%;
+    top: 15%;
+    width: 70%;
+    height: 70%;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.song-info {
+    font-family: 'Geist';
+    color: white;
+    font-size: 20px;
+}
+
+.song-info tr > td {
+    text-align: right;
+    padding: 4px;
+}
+
+.song-info tr td:last-child {
+    text-align: left;
+}
+
+/*  thanks to kirti vernekar's clever css countdown spinner
+    https://codepen.io/kirtivernekar/pen/PoJOMbb */
+.timer {
+    /* position: absolute; */
+    margin: auto;
+    width: inherit;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.timer > svg {
+    width: 100%;
+    height: 100%;
+}
+
+.timer > svg > circle {
+    fill: none;
+    stroke-opacity: 0.3;
+    stroke: #0d6efd;
+    stroke-width: 40;
+    transform-origin: center center;
+    transform: rotate(-90deg);
+}
+
+.timer > svg > circle + circle {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    stroke-linecap: butt;
+    stroke-opacity: 1;
+}
+
+.timer.animatable > svg > circle + circle {
+    transition: stroke-dashoffset .1s linear;
+}
+
+.timer > svg > text {
+    font-size: 4rem;
+}
+
+.timer > svg > text + text {
+    font-size: 1rem;
+}
+
+.timer /*> svg > text*/ {
+    font-family: 'Geist';
+    fill: white;
 }

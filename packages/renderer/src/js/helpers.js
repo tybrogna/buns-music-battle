@@ -106,7 +106,9 @@ export async function readSettings(settings) {
     let settingsInFolder = (await fs_readdir('./')).includes('settings.json')
     if (objIsEmpty(settings) && settingsInFolder) {
         let jsonData = await fs_readFile('./settings.json')
-        return await JSON.parse(new TextDecoder().decode(jsonData))
+        if (jsonData.byteLength > 0) {
+            return await JSON.parse(new TextDecoder().decode(jsonData))
+        }
     }
     return settings
 }
