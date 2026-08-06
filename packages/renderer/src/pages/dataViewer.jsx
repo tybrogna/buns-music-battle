@@ -258,15 +258,15 @@ function SongRow(props) {
             <td> <input id='tr-start-time' type='text' defaultValue={startTime} onInput={e => setStartTime(e.currentTarget.value)} /> </td>
             <td> <input id='tr-duration' type='text' defaultValue={duration} placeholder={gameData.defaultDuration} onInput={e => setDuration(e.currentTarget.value)} /> </td>
             <td>
-                <input id='tr-background' list='tr-background-datalist' type='text' defaultValue={background} onInput={e => setBackground(e.currentTarget.value)} />
-                <datalist id='tr-background-datalist'>
-                    {DataListOptions(props.bgsFileOptions)}
-                </datalist>
-            </td>
-            <td>
                 <input id='tr-album' list='tr-album-datalist' type='text' defaultValue={album} onInput={e => setAlbum(e.currentTarget.value)} />
                 <datalist id='tr-album-datalist'>
                     {DataListOptions(props.albumsFileOptions)}
+                </datalist>
+            </td>
+            <td>
+                <input id='tr-background' list='tr-background-datalist' type='text' defaultValue={background} onInput={e => setBackground(e.currentTarget.value)} />
+                <datalist id='tr-background-datalist'>
+                    {DataListOptions(props.bgsFileOptions)}
                 </datalist>
             </td>
         </tr>

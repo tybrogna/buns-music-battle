@@ -55,8 +55,8 @@ export default function MusicTest() {
             {/* <input type='button' value='fetchit' onClick={fetchIt} />
             <input type='button' value='more opts' onClick={e => options.push('bruh')} />
             <audio src={'asset:///C:/Users/tybro/Downloads/small.mp3#t=9'} controls/>
-            <img src={'asset:///C:/Users/tybro/Downloads/FFXV_Money.avif'} /> */}
             {/*thanks to kirti vernekar's clever css countdown spinner https://codepen.io/kirtivernekar/pen/PoJOMbb */}
+            <img src={'asset:///C:/Users/tybro/Downloads/FFXV_Money.avif'} />
             <div class="timer animatable">
                 <svg>
                     <circle cx="50%" cy="50%" r="235"/>

@@ -3,6 +3,19 @@
     src: url('./fonts/Geist-Medium.ttf');
 }
 
+@font-face {
+    font-family: 'Geist-Italic';
+    src: url('./fonts/Geist-MediumItalic.ttf');
+}
+
+input {
+    font-family: 'Geist';
+}
+
+.ita {
+    font-family: 'Geist-Italic';
+}
+
 .shell {
     min-height: 75vh;
 }
@@ -16,6 +29,12 @@
     min-height: 5em;
     width: 5em;
 } */
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
 .border-1 {
     border: 1px solid black;
@@ -216,17 +235,26 @@
 
 .music-player {
     position: relative;
-    left: 15%;
-    top: 15%;
-    width: 70%;
-    height: 70%;
+    left: 7.5%;
+    top: 7.5%;
+    width: 85%;
+    height: 85%;
     background-color: rgba(0, 0, 0, 0.8);
 }
 
 .song-info {
+    height: 92%;
     font-family: 'Geist';
     color: white;
-    font-size: 20px;
+    font-size: 32px;
+    transition: opacity 1s linear;
+    gap: 4em;
+}
+
+.song-info img {
+    object-fit: contain;
+    /* width: 500px; */
+    height: 500px;
 }
 
 .song-info tr > td {
@@ -238,18 +266,35 @@
     text-align: left;
 }
 
-/*  thanks to kirti vernekar's clever css countdown spinner
+.pause-button {
+    width: 100px;
+    height: 50px;
+}
+
+/*  thanks to kirti vernekar's clever css countdown spinner for getting me started
     https://codepen.io/kirtivernekar/pen/PoJOMbb */
 .timer {
-    /* position: absolute; */
     margin: auto;
     width: inherit;
-    height: 100%;
+    height: 80%;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 1000;
+}
+
+.timer-disappear {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
+.timer-disappear > svg > circle {
+    opacity: 0;
+    r: 100;
+    transition: opacity .5s ease,
+                r 1s ease;
+
 }
 
 .timer > svg {
