@@ -3,11 +3,32 @@
     src: url('./fonts/Geist-Medium.ttf');
 }
 
+@font-face {
+    font-family: 'Geist-Italic';
+    src: url('./fonts/Geist-MediumItalic.ttf');
+}
+
+input {
+    font-family: 'Geist';
+}
+
+input[type='button'] {
+    cursor: pointer;
+}
+
+.ita {
+    font-family: 'Geist-Italic';
+}
+
 .shell {
     min-height: 75vh;
 }
 
-.temp-tile {
+.opaque {
+    opacity: 0;
+}
+
+/* .temp-tile {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,6 +36,12 @@
     border: 2px black solid;
     min-height: 5em;
     width: 5em;
+} */
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .border-1 {
@@ -108,6 +135,21 @@
     text-align: center;
 }
 
+.floating-bg {
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index:-100;
+    opacity: 0;
+}
+
+.floating-bg-appear {
+    opacity: 1;
+    transition: opacity 1s ease-out;
+}
+
 .teams-zone {
     display: flex;
     justify-content: center;
@@ -183,6 +225,7 @@
     position: absolute;
     display: none;
     width: 100%;
+    height: 100%;
     top: 0;
     left: 0;
     right: 0;
@@ -211,4 +254,109 @@
     position: absolute;
     top: 1em;
     left: 1em;
+}
+
+.music-player {
+    position: relative;
+    cursor: default;
+    left: 7.5%;
+    top: 7.5%;
+    width: 85%;
+    height: 85%;
+    background-color: rgba(0, 0, 0, 0.8);
+    text-shadow: 1px 1px 2px white;
+}
+
+.song-info {
+    height: 92%;
+    font-family: 'Geist';
+    color: white;
+    font-size: 32px;
+    transition: opacity 1s linear;
+    gap: 4em;
+}
+
+.song-info img {
+    filter: drop-shadow(0 0 2rem white);
+    object-fit: contain;
+    /* width: 500px; */
+    height: 500px;
+}
+
+.song-info tr > td {
+    text-align: right;
+    padding: 4px;
+}
+
+.song-info tr td:last-child {
+    text-align: left;
+}
+
+.pause-button {
+    width: 100px;
+    height: 50px;
+}
+
+/*  thanks to kirti vernekar's clever css countdown spinner for getting me started
+    https://codepen.io/kirtivernekar/pen/PoJOMbb */
+.timer {
+    margin: auto;
+    width: inherit;
+    height: 80%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.timer-disappear {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
+.timer-disappear > svg > circle {
+    opacity: 0;
+    r: 100;
+    transition: opacity .5s ease,
+                r 1s ease;
+
+}
+
+.timer > svg {
+    width: 100%;
+    height: 100%;
+}
+
+.timer > svg > circle {
+    fill: none;
+    stroke-opacity: 0.3;
+    stroke: #0d6efd;
+    stroke-width: 40;
+    transform-origin: center center;
+    transform: rotate(-90deg);
+}
+
+.timer > svg > circle + circle {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    stroke-linecap: butt;
+    stroke-opacity: 1;
+}
+
+.timer.animatable > svg > circle + circle {
+    transition: stroke-dashoffset .1s linear;
+}
+
+.timer > svg > text {
+    font-size: 4rem;
+}
+
+.timer > svg > text + text {
+    font-size: 1rem;
+}
+
+.timer /*> svg > text*/ {
+    font-family: 'Geist';
+    fill: white;
 }
