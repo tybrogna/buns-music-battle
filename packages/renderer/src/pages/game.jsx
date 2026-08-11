@@ -2,8 +2,9 @@ import { render } from 'preact'
 // import * as Settings from '../settings.js'
 import { useState, useEffect, useRef } from 'preact/hooks'
 import { Link, Route } from 'wouter-preact'
-import { $, $$$, delay, range, Song, shuffle } from '../js/helpers.js'
+import { $, $$$, delay, range, Song, shuffle, loadAsset } from '../js/helpers.js'
 import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join, path_normalize } from '@app/preload'
+import { FastAverageColor } from 'fast-average-color'
 
 import '../css/game.css'
 
@@ -153,14 +154,17 @@ function CategoryTile(props) {
     let labelText = `${props.category.name} -- ${remaining}`
 
     useEffect(async () => {
-        let bgLocation = await path_join(game.backgroundsLocation, props.category.tileImg)
-        bgLocation = 'background-image: url(asset:///' + bgLocation + ')'
-        setBgUrl(bgLocation)
-    })
+        let asset = await loadAsset(game.backgroundsLocation,
+            props.category.tileImg,
+            props.category.name)
 
-    let createBackgroundUrl = async () => {
-        // let bgLocation = game.backgroundsLocation + '\\' + props.category.tileImg
-    }
+        if (asset == null) { // backup
+            setBgUrl('background: rgb(111,111,111)')
+            return
+        }
+
+        setBgUrl(`background-image: url(asset:///${asset})`)
+    })
 
     // when you click on a category tile, send the category title to the function passed down
     //   this will open the overlay and play the song
@@ -247,6 +251,7 @@ function MusicPlayer(props) {
     const [songRevealed, setSongRevealed] = useState(false)
     const [songPlaying, setSongPlaying] = useState(true)
     const [fileWasLoaded, setFileWasLoaded] = useState(false)
+    const [backgroundStyle, setBackgroundStyle] = useState('')
     const audioRef = useRef(null)
 
     useEffect(async () => {
@@ -256,6 +261,7 @@ function MusicPlayer(props) {
             }
             $('.timer').classList.remove('animatable')
             $('.timer').classList.add('timer-disappear')
+            $('.floating-bg').classList.add('floating-bg-appear')
             console.log('im revealed')
             let lowerVol = setInterval(() => {
                 if (audioRef.current == null) {
@@ -301,8 +307,11 @@ function MusicPlayer(props) {
         // console.log('[T] songPlaying was triggered, so im going to....')
         let audio = audioRef.current
         if (!fileWasLoaded) {
-            let songLocation = await path_join(game.songsLocation, props.song.soundFile)
-            let songBytes = await fs_readMp3(songLocation)
+            let asset = await loadAsset(game.songsLocation, props.song.soundFile, props.song.title)
+            if (asset == null) {
+                console.log('big problems'); return
+            }
+            let songBytes = await fs_readMp3(asset)
             audio.src = songBytes
             audio.currentTime = props.song.startTime
             setFileWasLoaded(true)
@@ -315,12 +324,20 @@ function MusicPlayer(props) {
         }
     }, [fullTimer, songPlaying]) //when songPlaying or pre changes, run this
 
-    useEffect(() => {
+    useEffect(async () => {
         $('.timer').addEventListener('transitionend', (e) => {
             if (e.target.classList.contains('timer')) {
                 e.target.style.display = 'none'
             }
         })
+
+        let asset = await loadAsset(game.backgroundsLocation,
+            props.song.backgroundImg,
+            props.song.title)
+        if (asset == null) {
+            return
+        }
+        setBackgroundStyle(`background-image: url(asset:///${asset})`)
     }, [])
 
     return (
@@ -340,6 +357,7 @@ function MusicPlayer(props) {
             <div class='flex-center'>
                 <input class='pause-button' type='button' value='pause' onClick={e => setSongPlaying(!songPlaying) } />
             </div>
+            <div class='floating-bg' style={backgroundStyle}></div>
         </div>
     )
 }
@@ -347,7 +365,7 @@ function MusicPlayer(props) {
 function SongInfo(props) {
     let [autoReveal, setAutoReveal] = useState(game.autoReveal)
     let [albumArt, setAlbumArt] = useState('')
-    let [background, setBackground] = useState('')
+    let [albumArtStyle, setAlbumArtStyle] = useState('')
 
     let infoArr = []
     if (game.style == 'game') {
@@ -379,19 +397,27 @@ function SongInfo(props) {
     })
 
     useEffect(async () => {
-        let albumArtLocation = await path_join(game.albumsLocation, props.song.albumArtImg)
-        setAlbumArt('asset:///' + albumArtLocation)
-        let backgroundLocation = await path_join(game.backgroundsLocation, props.song.backgroundImg)
-        setBackground('asset:///' + backgroundLocation)
-    })
+        let asset = await loadAsset(game.albumsLocation,
+            props.song.albumArtImg,
+            props.song.title)
+        if (asset == null) {
+            return
+        }
+        let assetUrl = 'asset:///' + asset
+        let fastAvgColor = await (new FastAverageColor()).getColorAsync(assetUrl)
+        let shadowStyle = `filter: drop-shadow(0 0 2rem ${fastAvgColor.rgb})`
+        setAlbumArt(assetUrl)
+        setAlbumArtStyle(shadowStyle)
+    }, [])
 
     if (props.songRevealed) {
         $('.song-info').style.opacity = '1'
     }
 
     return (
+        // <div class='song-info flex-center opaque' style={background}>
         <div class='song-info flex-center' style='opacity: 0;'>
-            <img src={albumArt} />
+            <img src={albumArt} style={albumArtStyle} />
             <table >
                 <thead style='display:none;'>
                     <tr></tr>
