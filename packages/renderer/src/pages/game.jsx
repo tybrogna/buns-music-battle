@@ -11,6 +11,9 @@ import '../css/game.css'
 let teams = {}
 let game = {}
 
+let backupColors = ['FFDE0E','B30638','0B55B7','5F3DC4','782CC3',
+    'F3F3F3','00473E','02594C','02A78B','73E6C2',]
+let backupCount = 0
 
 function GameScreen() {
     let [haveGame, setHaveGame] = useState(false)
@@ -159,7 +162,8 @@ function CategoryTile(props) {
             props.category.name)
 
         if (asset == null) { // backup
-            setBgUrl('background: rgb(111,111,111)')
+            setBgUrl(`background: #${backupColors[backupCount % 10]};`)
+            backupCount ++
             return
         }
 
@@ -194,28 +198,35 @@ function CategoryTile(props) {
 
 function Teams() {
     let TeamColumns = () => //doozy of a one liner
-        Object.entries(teams).map(([name, players]) => {
+        Object.entries(teams).map(([name, players], idx) => {
+            let Left = () => { if (idx != 0) return <div class='team-divider'></div> }
+
             let [score, setScore] = useState(0)
             return (
+                <>
+                <Left />
                 <div class='team-container'>
-                    <div class='team-info border-1'>
-                        <div class='team-label'>{name}</div>
-                        <PlayerList players={players} />
-                    </div>
-                    <div class='team-score border-2'>
-                        <input type='button' class='plus-button' value='+' 
-                            onClick={e => setScore(score + 1)} />
-                        <div class='score-label'>{score}</div>
-                        <input type='button' class='minus-button' value='-' 
-                            onClick={e => setScore(Math.max(0, score - 1))} />
+                    <div class='team-label'>{name}</div>
+                    <div class='team-players-and-score'>
+                        <div class='team-players'>
+                            <PlayerList players={players} />
+                        </div>
+                        <div class='team-score'>
+                            <input type='button' class='score-button plus-button' value='+'
+                                onClick={e => setScore(score + 1)} />
+                            <div class='score-label'>{score}</div>
+                            <input type='button' class='score-button minus-button' value='-'
+                                onClick={e => setScore(Math.max(0, score - 1))} />
+                        </div>
                     </div>
                 </div>
+                </>
             )
         })
 
     return (
         <div class='center-content'>
-            <div class='teams-zone border-3'>
+            <div class='teams-zone'>
                 <TeamColumns />
             </div>
         </div>
@@ -233,8 +244,10 @@ function PlayerList(props) {
         })
 
     return (
-        <div class='team-player-names border-2'>
-            <PlayerLabels />
+        <div class=''>
+            <div class=''>
+                <PlayerLabels />
+            </div>
         </div>
     )
 }
@@ -457,6 +470,10 @@ export default function Game() {
     incomingPlayers.split(',').forEach(player => {
         let [t, name] = player.split('|||')
         teams[t].push(name)
+    })
+
+    Object.values(teams).forEach(team => {
+        team.sort((a,b) => a.length - b.length)
     })
 
     // console.log(teams)

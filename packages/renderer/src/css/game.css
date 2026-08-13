@@ -56,6 +56,12 @@ input[type='button'] {
     border: 1px dashed blue;
 }
 
+.team-divider {
+    border-left: 1px solid black;
+    height: 70%;
+    margin: auto;
+}
+
 .category-tiles-flexbox {
     display: flex;
     gap: 1em;
@@ -151,6 +157,7 @@ input[type='button'] {
 }
 
 .teams-zone {
+    font-family: 'Geist';
     display: flex;
     justify-content: center;
     position: absolute;
@@ -158,7 +165,7 @@ input[type='button'] {
     min-height: 125px;
     height: inherit;
     margin-top: auto;
-    width: 90%;
+    width: 98%;
 }
 
 .center-content {
@@ -168,50 +175,89 @@ input[type='button'] {
 }
 
 .team-container {
-    display: flex;
     margin-left: 1%;
     margin-right: 1%;
     width: 60%;
     min-width: 10%;
 }
 
-.team-info {
+.team-players {
     width:80%;
+    height: 100%;
+}
+
+.team-players > div {
+    height: inherit;
+    background: gray;
+    border-radius: 10px;
+}
+
+.team-players > div > div {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.team-players .player-label {
+    width: fit-content;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 1%;
+    padding: 2px;
+    background: lightgrey;
+    border-radius: 5px;
+}
+
+.team-players-and-score {
+    display: flex;
+    height: 80%;
 }
 
 .team-score {
     display:flex;
     justify-content: center;
     flex-direction: column;
-    width:20%;
+    width: 20%;
     height: 95%;
 }
 
-.team-player-names {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.player-label {
-    width: 50%;
-}
-
 .team-label {
-    margin-left: 5px;
+    background: darkgray;
+    padding-left: 15px;
     font-size: 24px;
+    border-radius: 10px;
+}
+
+.score-button {
+    border-radius: 5% / 50%;
+    border-top: none;
+    border-left: none;
+    background: lightcyan;
+    /* transition: border  */
+}
+
+.score-button:hover {
+    background: lightblue;
 }
 
 .plus-button {
-    margin-left: 2%;
-    margin-right: 2%;
+    margin: 3px;
     width: 96%;
-    height: 30%;
+    height: 40%;
+}
+
+.plus-button:active {
+    background: lightgreen;
+    transition: border 1s ease-in;
 }
 
 .minus-button {
     margin-left: 25%;
     margin-right: 25%;
     width: 50%;
+}
+
+.minus-button:active {
+    background: lightcoral;
 }
 
 .score-label {
