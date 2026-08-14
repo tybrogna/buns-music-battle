@@ -225,6 +225,8 @@ input[type='button'] {
     padding-left: 15px;
     font-size: 24px;
     border-radius: 10px;
+    white-space: nowrap;
+    overflow: clip;
 }
 
 .score-button {
@@ -232,7 +234,6 @@ input[type='button'] {
     border-top: none;
     border-left: none;
     background: lightcyan;
-    /* transition: border  */
 }
 
 .score-button:hover {
@@ -240,6 +241,7 @@ input[type='button'] {
 }
 
 .plus-button {
+    z-index: 20;
     margin: 3px;
     width: 96%;
     height: 40%;
@@ -247,13 +249,46 @@ input[type='button'] {
 
 .plus-button:active {
     background: lightgreen;
-    transition: border 1s ease-in;
+}
+
+.plus-animation {
+    animation: expandingOutline linear .4s normal;
+}
+
+@keyframes expandingOutline {
+    0% {
+        outline: 20px solid;
+        outline-color: rgba(144, 238, 144, 255);
+        outline-offset: 0px
+    }
+
+    70% {
+        outline: 6px solid;
+        outline-color: rgba(144, 238, 144, 50);
+        outline-offset: 28px;
+    }
+
+    100% {
+        outline: 6px solid;
+        outline-color: rgba(144, 238, 144, 0);
+        outline-offset: 40px;
+    }
+}
+
+@keyframes growShrink {
+    0%, 100% {
+        border: 0px;
+    }
+
+    50% {
+        outl: 10px solid black;
+    }
 }
 
 .minus-button {
-    margin-left: 25%;
-    margin-right: 25%;
     width: 50%;
+    margin: auto;
+    margin-top: 3px;
 }
 
 .minus-button:active {
@@ -261,9 +296,15 @@ input[type='button'] {
 }
 
 .score-label {
+    pointer-events: none;
+    background: slategray;
     height: 50%;
-    font-size: x-large;
+    font-size: xxx-large;
     text-align: center;
+    z-index: 50;
+    border-radius: 50px;
+    width: 90%;
+    margin: auto;
 }
 
 #player-overlay {

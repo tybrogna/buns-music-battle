@@ -202,6 +202,33 @@ function Teams() {
             let Left = () => { if (idx != 0) return <div class='team-divider'></div> }
 
             let [score, setScore] = useState(0)
+
+            let plusClicked = (e) => {
+                setScore(score + 1)
+                e.target.classList.remove('plus-animation')
+                setTimeout(() => e.target.classList.add('plus-animation'), 0)
+            }
+
+            let minusClicked = (e) => {
+                setScore(Math.max(0, score - 1))
+                let coords = range(9).map(v =>
+                    `${Math.random() * 10 - 5}px, ${Math.random() * 20 - 10}px`
+                )
+                setTimeout(() => e.target.previousSibling.firstChild.animate([
+                    {transform: 'translate(0px,0px)'},
+                    {transform: `translate(${coords[0]})`, easing: 'steps(1)', offset: .1},
+                    {transform: `translate(${coords[1]})`, easing: 'steps(1)', offset: .2},
+                    {transform: `translate(${coords[2]})`, easing: 'steps(1)', offset: .3},
+                    {transform: `translate(${coords[3]})`, easing: 'steps(1)', offset: .4},
+                    {transform: `translate(${coords[4]})`, easing: 'steps(1)', offset: .5},
+                    {transform: `translate(${coords[5]})`, easing: 'steps(1)', offset: .6},
+                    {transform: `translate(${coords[6]})`, easing: 'steps(1)', offset: .7},
+                    {transform: `translate(${coords[7]})`, easing: 'steps(1)', offset: .8},
+                    {transform: `translate(${coords[8]})`, easing: 'steps(1)', offset: .9},
+                    {transform: 'translate(0px,0px)'}
+                ], 250))
+            }
+
             return (
                 <>
                 <Left />
@@ -213,10 +240,12 @@ function Teams() {
                         </div>
                         <div class='team-score'>
                             <input type='button' class='score-button plus-button' value='+'
-                                onClick={e => setScore(score + 1)} />
-                            <div class='score-label'>{score}</div>
+                                onClick={plusClicked} />
+                            <div class='score-label'>
+                                <div style='z-index: 50'>{score}</div>
+                            </div>
                             <input type='button' class='score-button minus-button' value='-'
-                                onClick={e => setScore(Math.max(0, score - 1))} />
+                                onClick={minusClicked} />
                         </div>
                     </div>
                 </div>

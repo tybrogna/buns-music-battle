@@ -131,7 +131,7 @@ export default function Landing() {
 
 async function startGame(event) {
     let nodes = $$$('.team-name-textbox')
-    let teams = Array.from(nodes).map(node => { node.value.replace(',', '.') })
+    let teams = Array.from(nodes).map(node => node.value.replace(',', '.'))
     console.log(teams)
 
     nodes = $$$('.players-textbox')
