@@ -6,6 +6,7 @@ import { $, $$$, delay, range, Song, shuffle, loadAsset } from '../js/helpers.js
 import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join, path_normalize } from '@app/preload'
 import { FastAverageColor } from 'fast-average-color'
 
+import '../css/basic.css'
 import '../css/game.css'
 
 let teams = {}
@@ -144,7 +145,7 @@ function CategoryGrid(props) {
 
     return (
         <>
-        <div class='category-tiles-flexbox border-2'>
+        <div class='category-tiles-flexbox'>
             <CategoryTiles />
         </div>
         </>
@@ -242,7 +243,7 @@ function Teams() {
                             <input type='button' class='score-button plus-button' value='+'
                                 onClick={plusClicked} />
                             <div class='score-label'>
-                                <div style='z-index: 50'>{score}</div>
+                                <div>{score}</div>
                             </div>
                             <input type='button' class='score-button minus-button' value='-'
                                 onClick={minusClicked} />

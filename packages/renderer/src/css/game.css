@@ -28,16 +28,6 @@ input[type='button'] {
     opacity: 0;
 }
 
-/* .temp-tile {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 5px;
-    border: 2px black solid;
-    min-height: 5em;
-    width: 5em;
-} */
-
 .flex-center {
     display: flex;
     justify-content: center;
@@ -71,6 +61,9 @@ input[type='button'] {
     margin-right: 12.5%;
     height: 73.5vh;
     justify-content: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50px;
+    box-shadow: 0px 0px 25px 25px rgba(0, 0, 0, .2);
 }
 
 .category-tile {
@@ -83,8 +76,8 @@ input[type='button'] {
     background-blend-mode: lighten;
     background-repeat: no-repeat;
     font-family: 'Geist';
-    /* font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; */
     text-shadow: 1px 1px 4px #ffffff;
+    box-shadow: 0px 0px 12px 12px rgba(0, 0, 0, .2);
     transition: background-size .2s ease-in-out;
 }
 
@@ -188,8 +181,12 @@ input[type='button'] {
 
 .team-players > div {
     height: inherit;
-    background: gray;
+    background: #D1C1F6;
+    border-left: solid black 1px;
+    border-right: solid black 1px;
+    border-bottom: solid black 1px;
     border-radius: 10px;
+    box-shadow: inset 0px 0px 20px rgba(0,0,0,.4);
 }
 
 .team-players > div > div {
@@ -203,7 +200,7 @@ input[type='button'] {
     margin-right: 1%;
     margin-top: 1%;
     padding: 2px;
-    background: lightgrey;
+    background: white;
     border-radius: 5px;
 }
 
@@ -221,23 +218,29 @@ input[type='button'] {
 }
 
 .team-label {
-    background: darkgray;
+    background: #D1C1F6;
     padding-left: 15px;
     font-size: 24px;
     border-radius: 10px;
     white-space: nowrap;
     overflow: clip;
+    border: solid black 1px;
+    box-shadow: inset 0px 0px 5px rgba(0,0,0,.4);
 }
 
 .score-button {
     border-radius: 5% / 50%;
-    border-top: none;
-    border-left: none;
+    border: none;
     background: lightcyan;
+    box-shadow: 2px 2px 2px black;
 }
 
 .score-button:hover {
-    background: lightblue;
+    transform: scale(102%);
+}
+
+.score-button:active {
+    transform: scale(98%);
 }
 
 .plus-button {
@@ -245,10 +248,7 @@ input[type='button'] {
     margin: 3px;
     width: 96%;
     height: 40%;
-}
-
-.plus-button:active {
-    background: lightgreen;
+    background: #C1CCF6;
 }
 
 .plus-animation {
@@ -258,19 +258,19 @@ input[type='button'] {
 @keyframes expandingOutline {
     0% {
         outline: 20px solid;
-        outline-color: rgba(144, 238, 144, 255);
+        outline-color: rgba(152, 170, 240, 255);
         outline-offset: 0px
     }
 
     70% {
         outline: 6px solid;
-        outline-color: rgba(144, 238, 144, 50);
+        outline-color: rgba(152, 170, 240, 50);
         outline-offset: 28px;
     }
 
     100% {
         outline: 6px solid;
-        outline-color: rgba(144, 238, 144, 0);
+        outline-color: rgba(152, 170, 240, 0);
         outline-offset: 40px;
     }
 }
@@ -289,6 +289,7 @@ input[type='button'] {
     width: 50%;
     margin: auto;
     margin-top: 3px;
+    background: #F6C1E6;
 }
 
 .minus-button:active {
@@ -297,14 +298,19 @@ input[type='button'] {
 
 .score-label {
     pointer-events: none;
-    background: slategray;
-    height: 50%;
-    font-size: xxx-large;
+    background: #C1CCF6;
+    height: 35%;
+    font-size: 30pt;
     text-align: center;
-    z-index: 50;
+    z-index: -50;
     border-radius: 50px;
     width: 90%;
     margin: auto;
+    box-shadow: inset 0px 0px 20px rgba(0,0,0,.4);
+}
+
+.score-label > div {
+    margin-top: 5%;
 }
 
 #player-overlay {
