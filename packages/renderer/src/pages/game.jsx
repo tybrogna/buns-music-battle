@@ -6,11 +6,15 @@ import { $, $$$, delay, range, Song, shuffle, loadAsset } from '../js/helpers.js
 import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join, path_normalize } from '@app/preload'
 import { FastAverageColor } from 'fast-average-color'
 
+import '../css/basic.css'
 import '../css/game.css'
 
 let teams = {}
 let game = {}
 
+let backupColors = ['FFDE0E','B30638','0B55B7','5F3DC4','782CC3',
+    'F3F3F3','00473E','02594C','02A78B','73E6C2',]
+let backupCount = 0
 
 function GameScreen() {
     let [haveGame, setHaveGame] = useState(false)
@@ -141,7 +145,7 @@ function CategoryGrid(props) {
 
     return (
         <>
-        <div class='category-tiles-flexbox border-2'>
+        <div class='category-tiles-flexbox'>
             <CategoryTiles />
         </div>
         </>
@@ -159,7 +163,8 @@ function CategoryTile(props) {
             props.category.name)
 
         if (asset == null) { // backup
-            setBgUrl('background: rgb(111,111,111)')
+            setBgUrl(`background: #${backupColors[backupCount % 10]};`)
+            backupCount ++
             return
         }
 
@@ -194,28 +199,64 @@ function CategoryTile(props) {
 
 function Teams() {
     let TeamColumns = () => //doozy of a one liner
-        Object.entries(teams).map(([name, players]) => {
+        Object.entries(teams).map(([name, players], idx) => {
+            let Left = () => { if (idx != 0) return <div class='team-divider'></div> }
+
             let [score, setScore] = useState(0)
+
+            let plusClicked = (e) => {
+                setScore(score + 1)
+                e.target.classList.remove('plus-animation')
+                setTimeout(() => e.target.classList.add('plus-animation'), 0)
+            }
+
+            let minusClicked = (e) => {
+                setScore(Math.max(0, score - 1))
+                let coords = range(9).map(v =>
+                    `${Math.random() * 10 - 5}px, ${Math.random() * 20 - 10}px`
+                )
+                setTimeout(() => e.target.previousSibling.firstChild.animate([
+                    {transform: 'translate(0px,0px)'},
+                    {transform: `translate(${coords[0]})`, easing: 'steps(1)', offset: .1},
+                    {transform: `translate(${coords[1]})`, easing: 'steps(1)', offset: .2},
+                    {transform: `translate(${coords[2]})`, easing: 'steps(1)', offset: .3},
+                    {transform: `translate(${coords[3]})`, easing: 'steps(1)', offset: .4},
+                    {transform: `translate(${coords[4]})`, easing: 'steps(1)', offset: .5},
+                    {transform: `translate(${coords[5]})`, easing: 'steps(1)', offset: .6},
+                    {transform: `translate(${coords[6]})`, easing: 'steps(1)', offset: .7},
+                    {transform: `translate(${coords[7]})`, easing: 'steps(1)', offset: .8},
+                    {transform: `translate(${coords[8]})`, easing: 'steps(1)', offset: .9},
+                    {transform: 'translate(0px,0px)'}
+                ], 250))
+            }
+
             return (
+                <>
+                <Left />
                 <div class='team-container'>
-                    <div class='team-info border-1'>
-                        <div class='team-label'>{name}</div>
-                        <PlayerList players={players} />
-                    </div>
-                    <div class='team-score border-2'>
-                        <input type='button' class='plus-button' value='+' 
-                            onClick={e => setScore(score + 1)} />
-                        <div class='score-label'>{score}</div>
-                        <input type='button' class='minus-button' value='-' 
-                            onClick={e => setScore(Math.max(0, score - 1))} />
+                    <div class='team-label'>{name}</div>
+                    <div class='team-players-and-score'>
+                        <div class='team-players'>
+                            <PlayerList players={players} />
+                        </div>
+                        <div class='team-score'>
+                            <input type='button' class='score-button plus-button' value='+'
+                                onClick={plusClicked} />
+                            <div class='score-label'>
+                                <div>{score}</div>
+                            </div>
+                            <input type='button' class='score-button minus-button' value='-'
+                                onClick={minusClicked} />
+                        </div>
                     </div>
                 </div>
+                </>
             )
         })
 
     return (
         <div class='center-content'>
-            <div class='teams-zone border-3'>
+            <div class='teams-zone'>
                 <TeamColumns />
             </div>
         </div>
@@ -233,8 +274,10 @@ function PlayerList(props) {
         })
 
     return (
-        <div class='team-player-names border-2'>
-            <PlayerLabels />
+        <div class=''>
+            <div class=''>
+                <PlayerLabels />
+            </div>
         </div>
     )
 }
@@ -457,6 +500,10 @@ export default function Game() {
     incomingPlayers.split(',').forEach(player => {
         let [t, name] = player.split('|||')
         teams[t].push(name)
+    })
+
+    Object.values(teams).forEach(team => {
+        team.sort((a,b) => a.length - b.length)
     })
 
     // console.log(teams)
