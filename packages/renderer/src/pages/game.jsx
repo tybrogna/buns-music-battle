@@ -240,12 +240,10 @@ function Teams() {
                             <PlayerList players={players} />
                         </div>
                         <div class='team-score'>
-                            <input type='button' class='score-button plus-button' value='+'
+                            <input type='button' class='game-button button-shadow-dark plus-button' value='+'
                                 onClick={plusClicked} />
-                            <div class='score-label'>
-                                <div>{score}</div>
-                            </div>
-                            <input type='button' class='score-button minus-button' value='-'
+                            <div class='score-label'>{score}</div>
+                            <input type='button' class='game-button button-shadow-dark minus-button' value='-'
                                 onClick={minusClicked} />
                         </div>
                     </div>
@@ -392,13 +390,13 @@ function MusicPlayer(props) {
                     <circle cx="50%" cy="50%" r="235" pathLength="1" />
                     <text x="50%" y="50%" text-anchor="middle"><tspan id="timeLeft">{displayTime.toFixed(0)}</tspan></text>
                     <foreignObject  x="48%" y="60%" width="75" height="50">
-                        <input style='height: 40px' type='button' value='reveal' onClick={e => setSongRevealed(true) } />
+                        <input style='height: 40px' class='game-button button-shadow-light' type='button' value='reveal' onClick={e => setSongRevealed(true) } />
                     </foreignObject>
                 </svg>
             </div>
             <SongInfo songRevealed={songRevealed} song={props.song} />
             <div class='flex-center'>
-                <input class='pause-button' type='button' value='pause' onClick={e => setSongPlaying(!songPlaying) } />
+                <input class='game-button button-shadow-light pause-button' type='button' value='pause' onClick={e => setSongPlaying(!songPlaying) } />
             </div>
             <div class='floating-bg' style={backgroundStyle}></div>
         </div>

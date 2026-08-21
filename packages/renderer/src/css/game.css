@@ -228,18 +228,25 @@ input[type='button'] {
     box-shadow: inset 0px 0px 5px rgba(0,0,0,.4);
 }
 
-.score-button {
+.game-button {
     border-radius: 5% / 50%;
     border: none;
     background: lightcyan;
+}
+
+.button-shadow-dark {
     box-shadow: 2px 2px 2px black;
 }
 
-.score-button:hover {
+.button-shadow-light {
+    box-shadow: 2px 2px 2px #a8cf91;
+}
+
+.game-button:hover {
     transform: scale(102%);
 }
 
-.score-button:active {
+.game-button:active {
     transform: scale(98%);
 }
 
@@ -300,8 +307,9 @@ input[type='button'] {
     pointer-events: none;
     background: #C1CCF6;
     height: 35%;
-    font-size: 30pt;
+    font-size: 25pt;
     text-align: center;
+    align-content: space-evenly;
     z-index: -50;
     border-radius: 50px;
     width: 90%;
