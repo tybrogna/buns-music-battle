@@ -1,4 +1,4 @@
-import { process_platform, os_userInfo, fs_readFile, fs_readdir } from "@app/preload"
+import { process_platform, os_userInfo, fs_readFile, fs_readdir, path_join } from "@app/preload"
 
 export function delay(ms) {
     return new Promise(resolve => { setTimeout(resolve, ms) })
@@ -106,9 +106,31 @@ export async function readSettings(settings) {
     let settingsInFolder = (await fs_readdir('./')).includes('settings.json')
     if (objIsEmpty(settings) && settingsInFolder) {
         let jsonData = await fs_readFile('./settings.json')
-        return await JSON.parse(new TextDecoder().decode(jsonData))
+        if (jsonData.byteLength > 0) {
+            return await JSON.parse(new TextDecoder().decode(jsonData))
+        }
     }
     return settings
+}
+
+export async function loadAsset(folder, asset, item) {
+    if (folder == '') {
+        console.log('the folder provided is blank: ',
+             folder)
+        return null
+    }
+    if (asset == '') {
+        console.log('the asset provided is blank: ',
+             asset)
+        return null
+    }
+    let assetLocation = await path_join(folder, asset)
+    if (assetLocation == null) {
+        console.log('didnt asset at: ', folder, '/', asset)
+        console.log('for item: ', item)
+        return null
+    }
+    return assetLocation
 }
 
 

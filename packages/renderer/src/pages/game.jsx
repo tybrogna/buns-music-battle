@@ -2,14 +2,19 @@ import { render } from 'preact'
 // import * as Settings from '../settings.js'
 import { useState, useEffect, useRef } from 'preact/hooks'
 import { Link, Route } from 'wouter-preact'
-import { $, $$$, delay, range, Song, shuffle } from '../js/helpers.js'
-import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join } from '@app/preload'
+import { $, $$$, delay, range, Song, shuffle, loadAsset } from '../js/helpers.js'
+import { fs_readdir, fs_readFile, fs_readMp3, fs_writeFile, path_join, path_normalize } from '@app/preload'
+import { FastAverageColor } from 'fast-average-color'
 
+import '../css/basic.css'
 import '../css/game.css'
 
 let teams = {}
 let game = {}
 
+let backupColors = ['FFDE0E','B30638','0B55B7','5F3DC4','782CC3',
+    'F3F3F3','00473E','02594C','02A78B','73E6C2',]
+let backupCount = 0
 
 function GameScreen() {
     let [haveGame, setHaveGame] = useState(false)
@@ -30,7 +35,8 @@ function GameScreen() {
         game.songsLocation = await path_join(selectedGameFolder, 'songs')
         game.albumsLocation = await path_join(selectedGameFolder, 'albums')
         game.backgroundsLocation = await path_join(selectedGameFolder, 'bgs')
-        game.music.forEach(category => {
+        game.music.forEach((category, idx) => {
+            category['id'] = 'c' + idx
             category.songs.forEach(song => {
                 if (song.composer == null) {
                     song.composer = ""
@@ -60,7 +66,6 @@ function GameScreen() {
         let song = shuffle(choices)[0]
         song.played = true
         setActiveCategory(category)
-        console.log(song)
         setActiveSong(song)
         $('#player-overlay').style.display = 'block'
     }
@@ -73,7 +78,7 @@ function GameScreen() {
         $('#player-overlay').style.display = 'none'
 
         if (activeCategory && unplayedSongs(activeCategory).length == 0) {
-            $(`#${activeCategory}-tile`).style.background = 'grey'
+            $(`#${activeCategory}`).style.background = 'grey'
         }
 
         setActiveCategory(null)
@@ -101,11 +106,10 @@ function GameScreen() {
             <div>loading...</div>
         )
     } else {
-        console.log('game screen rerender')
-        let categories = game.music.map(cat => cat.name)
+        // console.log('game screen rerender')
         return (
             <div className='shell'>
-                <CategoryGrid categories={categories} selectFunc={selectCategory} />
+                <CategoryGrid categories={game.music} selectFunc={selectCategory} />
                 <Teams />
                 <div id='player-overlay' onClick={closeOverlay}>
                     <PlayerToggle />
@@ -119,19 +123,15 @@ function GameScreen() {
 }
 
 function CategoryGrid(props) {
-    let catNames = props.categories
-    //give the categories random colors
-
-    let CategoryTiles = () => catNames.map((catName) => { 
+    let CategoryTiles = () => props.categories.map(cat => {
         return (
-            <CategoryTile title={catName} selectFunc={props.selectFunc} />
+            <CategoryTile category={cat} selectFunc={props.selectFunc} />
         )
     })
 
-
     return (
         <>
-        <div class='category-tiles-flexbox border-2'>
+        <div class='category-tiles-flexbox'>
             <CategoryTiles />
         </div>
         </>
@@ -139,9 +139,23 @@ function CategoryGrid(props) {
 }
 
 function CategoryTile(props) {
-    let remaining = unplayedSongs(props.title).length
-    let id = props.title + '-tile'
-    let labelText = `${props.title} -- ${remaining}`
+    let [ bgUrl, setBgUrl ] = useState('')
+    let remaining = unplayedSongs(props.category.id).length
+    let labelText = `${props.category.name} -- ${remaining}`
+
+    useEffect(async () => {
+        let asset = await loadAsset(game.backgroundsLocation,
+            props.category.tileImg,
+            props.category.name)
+
+        if (asset == null) { // backup
+            setBgUrl(`background: #${backupColors[backupCount % 10]};`)
+            backupCount ++
+            return
+        }
+
+        setBgUrl(`background-image: url(asset:///${asset})`)
+    })
 
     // when you click on a category tile, send the category title to the function passed down
     //   this will open the overlay and play the song
@@ -149,40 +163,92 @@ function CategoryTile(props) {
         if (remaining <= 0) {
             return
         }
-        props.selectFunc(props.title)
+        props.selectFunc(props.category.id)
+    }
+
+    let categoryTileClasses = ""
+    if (game.music.length <= 4) {
+        categoryTileClasses = "category-tile category-tile-4"
+    } else if (game.music.length <= 8) {
+        categoryTileClasses = "category-tile category-tile-8"
+    } else {
+        categoryTileClasses = "category-tile category-tile-12"
     }
 
     return (
-        <div id={id} class='category-tile-flex-item border-1' onClick={playSong}>
-            {labelText}
+        <div id={props.category.id} class={categoryTileClasses} style={bgUrl} onClick={playSong} >
+            <div class='category-tile-floating-name'>{props.category.name}</div>
+            <div class='category-tile-floating-count'>{remaining} Left</div>
         </div>
     )
 }
 
 function Teams() {
     let TeamColumns = () => //doozy of a one liner
-        Object.entries(teams).map(([name, players]) => {
+        Object.entries(teams).map(([name, players], idx) => {
+            let [newName, setNewName] = useState(name)
+            let Left = () => {
+                if (idx != 0)
+                    return <div class='team-divider'></div>
+            }
+
             let [score, setScore] = useState(0)
+
+            let plusClicked = (e) => {
+                setScore(score + 1)
+                e.target.classList.remove('plus-animation')
+                // setTimeout allows browser to recheck the DOM on its own time without forcing extra work
+                setTimeout(() => e.target.classList.add('plus-animation'), 0)
+            }
+
+            let minusClicked = (e) => {
+                setScore(Math.max(0, score - 1))
+                let coords = range(9).map(v =>
+                    `${Math.random() * 16 - 8}px, ${Math.random() * 16 - 8}px`
+                )
+                // shake the element that displays the score 10 times in a quarter second
+                setTimeout(() => e.target.previousSibling.firstChild.animate([
+                    {transform: 'translate(0px,0px)'},
+                    {transform: `translate(${coords[0]})`, easing: 'steps(1)', offset: .1},
+                    {transform: `translate(${coords[1]})`, easing: 'steps(1)', offset: .2},
+                    {transform: `translate(${coords[2]})`, easing: 'steps(1)', offset: .3},
+                    {transform: `translate(${coords[3]})`, easing: 'steps(1)', offset: .4},
+                    {transform: `translate(${coords[4]})`, easing: 'steps(1)', offset: .5},
+                    {transform: `translate(${coords[5]})`, easing: 'steps(1)', offset: .6},
+                    {transform: `translate(${coords[6]})`, easing: 'steps(1)', offset: .7},
+                    {transform: `translate(${coords[7]})`, easing: 'steps(1)', offset: .8},
+                    {transform: `translate(${coords[8]})`, easing: 'steps(1)', offset: .9},
+                    {transform: 'translate(0px,0px)'}
+                ], 250))
+            }
+
             return (
+                <>
+                <Left />
                 <div class='team-container'>
-                    <div class='team-info border-1'>
-                        <div class='team-label'>{name}</div>
-                        <PlayerList players={players} />
-                    </div>
-                    <div class='team-score border-2'>
-                        <input type='button' class='plus-button' value='+' 
-                            onClick={e => setScore(score + 1)} />
-                        <div class='score-label'>{score}</div>
-                        <input type='button' class='minus-button' value='-' 
-                            onClick={e => setScore(Math.max(0, score - 1))} />
+                    <input class='team-label' defaultValue={name} onInput={e => setNewName(e.currentTarget.value)}></input>
+                    <div class='team-players-and-score'>
+                        <div class='team-players'>
+                            <PlayerList players={players} />
+                        </div>
+                        <div class='team-score'>
+                            <input type='button' class='game-button button-shadow-dark plus-button' value='+'
+                                onClick={plusClicked} />
+                            <div class='score-label'>
+                                <div>{score}</div>
+                            </div>
+                            <input type='button' class='game-button button-shadow-dark minus-button' value='-'
+                                onClick={minusClicked} />
+                        </div>
                     </div>
                 </div>
+                </>
             )
         })
 
     return (
         <div class='center-content'>
-            <div class='teams-zone border-3'>
+            <div class='teams-zone'>
                 <TeamColumns />
             </div>
         </div>
@@ -200,8 +266,10 @@ function PlayerList(props) {
         })
 
     return (
-        <div class='team-player-names border-2'>
-            <PlayerLabels />
+        <div class=''>
+            <div class=''>
+                <PlayerLabels />
+            </div>
         </div>
     )
 }
@@ -210,117 +278,200 @@ function PlayerList(props) {
 // a logical maze that starts the countdown, plays the song, and displays the information.
 //   i shudder at how readable it will be when i start to add css decoration
 function MusicPlayer(props) {
-    const [guessTimer, setGuessTimer] = useState(parseInt(props.time))
+    let initGuessTime = parseInt(props.time)
+    let initCountdownTime = parseInt(game.countdown - 1)
+    let initalFullTime = initGuessTime + initCountdownTime
+    const [displayTime, setDisplayTime] = useState(initalFullTime)
+    const [fullTimer, setFullTimer] = useState(initalFullTime)
     const [songRevealed, setSongRevealed] = useState(false)
     const [songPlaying, setSongPlaying] = useState(true)
-    const [countdown, setCountdown] = useState(parseInt(game.countdown))
     const [fileWasLoaded, setFileWasLoaded] = useState(false)
+    const [backgroundStyle, setBackgroundStyle] = useState('')
     const audioRef = useRef(null)
 
     useEffect(async () => {
-        if (!songPlaying || songRevealed) {
+        if (songRevealed) {
+            if (fullTimer > 0) {
+                setFullTimer(0)
+            }
+            $('.timer').classList.remove('animatable')
+            $('.timer').classList.add('timer-disappear')
+            $('.floating-bg').classList.add('floating-bg-appear')
+            console.log('im revealed')
+            let lowerVol = setInterval(() => {
+                if (audioRef.current == null) {
+                    clearInterval(lowerVol)
+                    return
+                }
+                if (audioRef.current.volume > .5) {
+                    audioRef.current.volume -= .05
+                }
+            }, 400)
             return
         }
 
-        if (guessTimer <= 0) {
-            // setSongPlaying(false)
+        if (!songPlaying) {
+            return
+        }
+
+        if (fullTimer <= 0) {
             setSongRevealed(true)
             return
         }
 
         let timer = setTimeout(() => {
-            if (countdown >= 0) {
-                setCountdown(time => time - .1)
+            setFullTimer(time => time - .1)
+            let svg = $('.timer').querySelector('svg > circle + circle')
+            if (songRevealed) return
+            if (fullTimer >= initGuessTime) {
+                let newTime = Math.min(0, (fullTimer - initGuessTime) * -1)
+                setDisplayTime(newTime)
+                let strokePercentage = (fullTimer - initGuessTime) / initCountdownTime
+                svg.style.strokeDashoffset = strokePercentage
             } else {
-                setGuessTimer(time => time - .1)
+                setDisplayTime(fullTimer)
+                let svg = document.querySelector('.timer')
+                            .querySelector('svg > circle + circle')
+                let strokePercentage = (initGuessTime - fullTimer) / initGuessTime
+                svg.style.strokeDashoffset = Math.max(0, strokePercentage)
             }
         }, 100);
-    }, [countdown, guessTimer, songPlaying, songRevealed]) //when countdown, ticking, or songRevealed change, run this
+    }, [fullTimer, songPlaying, songRevealed]) //when countdown, ticking, or songRevealed change, run this
 
     useEffect(async () => {
-        console.log('[T] songPlaying was triggered, so im going to....')
+        // console.log('[T] songPlaying was triggered, so im going to....')
         let audio = audioRef.current
-        // console.log(audio)
         if (!fileWasLoaded) {
-            let songLocation = await path_join(game.songsLocation, props.song.soundFile)
-            let songBytes = await fs_readMp3(songLocation)
+            let asset = await loadAsset(game.songsLocation, props.song.soundFile, props.song.title)
+            if (asset == null) {
+                console.log('big problems')
+                return
+            }
+            let songBytes = await fs_readMp3(asset)
             audio.src = songBytes
             audio.currentTime = props.song.startTime
             setFileWasLoaded(true)
         }
-        // let songUri = await createSongUri(props.song)
-        // setSongFile(songUri)
-        if (countdown <= 0 && songPlaying) {
-            audio.play() //;console.log('[T] play a song')
+        if (fullTimer <= initGuessTime && songPlaying) {
+            audio.play()
         } else {
-            audio.pause() //;console.log('[T] the song is over or paused')
+            audio.pause()
         }
-    }, [countdown, songPlaying]) //when songPlaying or pre changes, run this
+    }, [fullTimer, songPlaying]) //when songPlaying or pre changes, run this
+
+    useEffect(async () => {
+        $('.timer').addEventListener('transitionend', (e) => {
+            if (e.target.classList.contains('timer')) {
+                e.target.style.display = 'none'
+            }
+        })
+
+        let asset = await loadAsset(game.backgroundsLocation,
+            props.song.backgroundImg,
+            props.song.title)
+        if (asset == null) {
+            return
+        }
+        setBackgroundStyle(`background-image: url(asset:///${asset})`)
+    }, [])
 
     return (
-        <div class='border-2' style="margin: 20%;" onclick={e => e.stopPropagation()}>
-            <div class="">{countdown.toFixed(1)}</div>
-            <div class="">{guessTimer.toFixed(1)}</div>
-            <audio ref={audioRef} src='' controls/>
-            <input type='button' value='play/pause' onClick={e => setSongPlaying(!songPlaying)} />
+        <div class='music-player' onclick={e => e.stopPropagation()}>
+            <audio ref={audioRef} src=''/>
+            <div class='timer animatable'>
+                <svg>
+                    <circle cx="50%" cy="50%" r="235"/>
+                    <circle cx="50%" cy="50%" r="235" pathLength="1" />
+                    <text x="50%" y="50%" text-anchor="middle"><tspan id="timeLeft">{displayTime.toFixed(0)}</tspan></text>
+                    <foreignObject  x="48%" y="60%" width="75" height="50">
+                        <input style='height: 40px' class='game-button button-shadow-light' type='button' value='reveal' onClick={e => setSongRevealed(true) } />
+                    </foreignObject>
+                </svg>
+            </div>
             <SongInfo songRevealed={songRevealed} song={props.song} />
+            <div class='flex-center'>
+                <input class='game-button button-shadow-light pause-button' type='button' value='pause' onClick={e => setSongPlaying(!songPlaying) } />
+            </div>
+            <div class='floating-bg' style={backgroundStyle}></div>
         </div>
     )
 }
 
 function SongInfo(props) {
     let [autoReveal, setAutoReveal] = useState(game.autoReveal)
+    let [albumArt, setAlbumArt] = useState('')
+    let [albumArtStyle, setAlbumArtStyle] = useState('')
 
-    let InfoBlock = () => {
-        if (game.style == 'game') {
-            return (
-                <div>
-                    <div>Title: {props.song.title}</div>
-                    <div>Composer: {props.song.composer}</div>
-                    <div>Game: {props.song.game}</div>
-                    <div>Release Year: {props.song.year}</div>
-                </div>
-            )
-        } else if (game.style == 'music') {
-            return (
-                <div>
-                    <div>Artist: {props.song.artist}</div>
-                    <div>Album: {props.song.album}</div>
-                    <div>Game: {props.song.game}</div>
-                    <div>Release Year: {props.song.year}</div>
-                </div>
-            )
-        } else {
-            return (
-                <div>
-                    <div>Title: {props.song.title}</div>
-                    <div>Artist: {props.song.artist}</div>
-                    <div>Composer: {props.song.composer}</div>
-                    <div>Album: {props.song.album}</div>
-                    <div>Game: {props.song.game}</div>
-                    <div>Release Year: {props.song.year}</div>
-                </div>
-            )
-        }
-    }
-
-    if (props.songRevealed && autoReveal) {
-        return <InfoBlock />
+    let infoArr = []
+    if (game.style == 'game') {
+        infoArr.push(["Title", props.song.title],
+            ["Composer", props.song.composer],
+            ["Game", props.song.game, 'ita'],
+            ["Release Year", props.song.year])
+    } else if (game.style == 'music') {
+        infoArr.push(["Title", props.song.title],
+            ["Artist", props.song.artist],
+            ["Album", props.song.album, 'ita'],
+            ["Release Year", props.song.year])
     } else {
-        if (!autoReveal) {
-            return (
-                <input type='button' value='reveal' onClick={e => setAutoReveal(true)} />
-            )
-        } else {
-            return (<div></div>)
-        }
+        infoArr.push(["Title", props.song.title],
+            ["Artist", props.song.artist],
+            ["Composer", props.song.composer],
+            ["Album", props.song.album, 'ita'],
+            ["Game", props.song.game],
+            ["Release Year", props.song.year])
     }
+
+    let NewInfoBlock = () => infoArr.map(info => {
+        return (
+            <tr>
+                <td>{info[0]}:</td>
+                <td class={info[2]}>{info[1]}</td>
+            </tr>
+        )
+    })
+
+    useEffect(async () => {
+        let asset = await loadAsset(game.albumsLocation,
+            props.song.albumArtImg,
+            props.song.title)
+        if (asset == null) {
+            return
+        }
+        let assetUrl = 'asset:///' + asset
+        let fastAvgColor = await (new FastAverageColor()).getColorAsync(assetUrl)
+        let shadowStyle = `filter: drop-shadow(0 0 2rem ${fastAvgColor.rgb})`
+        setAlbumArt(assetUrl)
+        setAlbumArtStyle(shadowStyle)
+    }, [])
+
+    if (props.songRevealed) {
+        $('.song-info').style.opacity = '1'
+    }
+
+    return (
+        // <div class='song-info flex-center opaque' style={background}>
+        <div class='song-info flex-center' style='opacity: 0;'>
+            <img src={albumArt} style={albumArtStyle} />
+            <table >
+                <thead style='display:none;'>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                    <NewInfoBlock />
+                </tbody>
+                <tfoot style='display:none;'>
+                    <tr></tr>
+                </tfoot>
+            </table>
+        </div>
+    )
 }
 
 function unplayedSongs(category) {
-    if (game == null || game.music == null ||category == null || category == "")
+    if (game == null || game.music == null || category == null || category == "")
         return
-    let cat = game.music.filter(cat => cat.name == category)[0]
+    let cat = game.music.filter(cat => cat.id == category)[0]
     return cat.songs.filter(song => !song.played)
 }
 
@@ -329,23 +480,6 @@ function defaultTeams() {
     let players = 'east side|||notorious B.I.G.,east side|||puff daddy,west side|||2Pac,west side|||dr dre'
     return [teams,players]
 }
-
-// previous function for streaming songs
-// async function createSongUri(song) {
-//     let minAt = Math.floor(song.startTime / 60)
-//     if (minAt < 10) {
-//         minAt = "0" + minAt
-//     }
-//     let secAt = song.startTime % 60
-//     if (secAt < 10) {
-//         secAt = "0" + secAt
-//     }
-//     let playAt = `t=00:${minAt}:${secAt}`
-//     let uri = await path_join(game.songsLocation, song.soundFile)
-//     uri += "#" + playAt
-//     console.log(uri)
-//     return uri
-// }
 
 export default function Game() {
     let incomingTeams = localStorage.getItem('teams')
@@ -360,6 +494,10 @@ export default function Game() {
         teams[t].push(name)
     })
 
+    Object.values(teams).forEach(team => {
+        team.sort((a,b) => a.length - b.length)
+    })
+
     // console.log(teams)
     // console.log(players)
     // console.log(gameFolder)
@@ -369,10 +507,10 @@ export default function Game() {
 }
 
 //todo: add images
-//      css for catagories
-//      css for player
-//      css for teams
-//      animations for categories
-//      animations for music player
-//      animations for teams
-//      game/music industry mode
+//      css for catagories DONE
+//      css for player DONE
+//      css for teams DONE
+//      animations for categories DONE
+//      animations for music player DONE
+//      animations for teams 
+//      game/music industry mode DONE

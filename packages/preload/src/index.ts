@@ -2,7 +2,7 @@ import {sha256sum} from './nodeCrypto.js';
 import {versions} from './versions.js';
 import {ipcRenderer} from 'electron';
 
-import { readdir, readFile, writeFile } from 'node:fs/promises'
+import { readdir, readFile, writeFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import os from 'os'
 
@@ -28,7 +28,30 @@ export function os_userInfo() {
 }
 
 export async function path_join(...args: [string]) {
-    return path.join(...args)
+    let madePath = path.join(...args)
+    let osPath = madePath.replaceAll(path.win32.sep, path.posix.sep)
+    try{
+        await stat(osPath)
+        return osPath
+    } catch (err: unknown) {
+        return null
+    }
+}
+
+export async function path_normalize(loc: string) {
+    return path.normalize(loc)
+}
+
+export async function path_format(obj: object) {
+    return path.format(obj)
+}
+
+export async function fs_stat(location: string) {
+    try{
+        return await stat(location)
+    } catch (err: unknown) {
+        return null
+    }
 }
 
 export async function fs_readdir(location: string) {
