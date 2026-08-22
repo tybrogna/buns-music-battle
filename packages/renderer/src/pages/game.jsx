@@ -213,7 +213,7 @@ function Teams() {
             let minusClicked = (e) => {
                 setScore(Math.max(0, score - 1))
                 let coords = range(9).map(v =>
-                    `${Math.random() * 10 - 5}px, ${Math.random() * 20 - 10}px`
+                    `${Math.random() * 16 - 8}px, ${Math.random() * 16 - 8}px`
                 )
                 setTimeout(() => e.target.previousSibling.firstChild.animate([
                     {transform: 'translate(0px,0px)'},
@@ -242,8 +242,10 @@ function Teams() {
                         <div class='team-score'>
                             <input type='button' class='game-button button-shadow-dark plus-button' value='+'
                                 onClick={plusClicked} />
-                            <div class='score-label'>{score}</div>
-                            <input type='button' class='game-button button-shadow-dark minus-button' value='-'
+                            <div class='score-label'>
+                                <div>{score}</div>
+                            </div>
+                            <input type='button' class='game-button minus-button' value='-'
                                 onClick={minusClicked} />
                         </div>
                     </div>
