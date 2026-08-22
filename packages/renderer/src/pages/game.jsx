@@ -106,11 +106,9 @@ function GameScreen() {
             <div>loading...</div>
         )
     } else {
-        console.log('game screen rerender')
-        // let categories = game.music.map(cat => [cat.name, cat.tileImg])
+        // console.log('game screen rerender')
         return (
             <div className='shell'>
-                {/* <Background /> */}
                 <CategoryGrid categories={game.music} selectFunc={selectCategory} />
                 <Teams />
                 <div id='player-overlay' onClick={closeOverlay}>
@@ -124,24 +122,12 @@ function GameScreen() {
     }
 }
 
-function Background() {
-    return (
-        <div class='background-overlay'>
-
-        </div>
-    )
-}
-
 function CategoryGrid(props) {
-    // let catego = props.categories
-    //give the categories random colors
-
     let CategoryTiles = () => props.categories.map(cat => {
         return (
             <CategoryTile category={cat} selectFunc={props.selectFunc} />
         )
     })
-
 
     return (
         <>
@@ -200,13 +186,18 @@ function CategoryTile(props) {
 function Teams() {
     let TeamColumns = () => //doozy of a one liner
         Object.entries(teams).map(([name, players], idx) => {
-            let Left = () => { if (idx != 0) return <div class='team-divider'></div> }
+            let [newName, setNewName] = useState(name)
+            let Left = () => {
+                if (idx != 0)
+                    return <div class='team-divider'></div>
+            }
 
             let [score, setScore] = useState(0)
 
             let plusClicked = (e) => {
                 setScore(score + 1)
                 e.target.classList.remove('plus-animation')
+                // setTimeout allows browser to recheck the DOM on its own time without forcing extra work
                 setTimeout(() => e.target.classList.add('plus-animation'), 0)
             }
 
@@ -215,6 +206,7 @@ function Teams() {
                 let coords = range(9).map(v =>
                     `${Math.random() * 16 - 8}px, ${Math.random() * 16 - 8}px`
                 )
+                // shake the element that displays the score 10 times in a quarter second
                 setTimeout(() => e.target.previousSibling.firstChild.animate([
                     {transform: 'translate(0px,0px)'},
                     {transform: `translate(${coords[0]})`, easing: 'steps(1)', offset: .1},
@@ -234,7 +226,7 @@ function Teams() {
                 <>
                 <Left />
                 <div class='team-container'>
-                    <div class='team-label'>{name}</div>
+                    <input class='team-label' defaultValue={name} onInput={e => setNewName(e.currentTarget.value)}></input>
                     <div class='team-players-and-score'>
                         <div class='team-players'>
                             <PlayerList players={players} />
@@ -245,7 +237,7 @@ function Teams() {
                             <div class='score-label'>
                                 <div>{score}</div>
                             </div>
-                            <input type='button' class='game-button minus-button' value='-'
+                            <input type='button' class='game-button button-shadow-dark minus-button' value='-'
                                 onClick={minusClicked} />
                         </div>
                     </div>
@@ -352,18 +344,18 @@ function MusicPlayer(props) {
         if (!fileWasLoaded) {
             let asset = await loadAsset(game.songsLocation, props.song.soundFile, props.song.title)
             if (asset == null) {
-                console.log('big problems'); return
+                console.log('big problems')
+                return
             }
             let songBytes = await fs_readMp3(asset)
             audio.src = songBytes
             audio.currentTime = props.song.startTime
             setFileWasLoaded(true)
-            console.log('file loaded!!')
         }
         if (fullTimer <= initGuessTime && songPlaying) {
-            audio.play() //;console.log('[T] play a song')
+            audio.play()
         } else {
-            audio.pause() //;console.log('[T] the song is over or paused')
+            audio.pause()
         }
     }, [fullTimer, songPlaying]) //when songPlaying or pre changes, run this
 
@@ -384,9 +376,9 @@ function MusicPlayer(props) {
     }, [])
 
     return (
-        <div class='music-player border-1' onclick={e => e.stopPropagation()}>
+        <div class='music-player' onclick={e => e.stopPropagation()}>
             <audio ref={audioRef} src=''/>
-            <div class="timer animatable border-2">
+            <div class='timer animatable'>
                 <svg>
                     <circle cx="50%" cy="50%" r="235"/>
                     <circle cx="50%" cy="50%" r="235" pathLength="1" />
@@ -516,9 +508,9 @@ export default function Game() {
 
 //todo: add images
 //      css for catagories DONE
-//      css for player - in progress...
-//      css for teams
+//      css for player DONE
+//      css for teams DONE
 //      animations for categories DONE
-//      animations for music player - in progress...
-//      animations for teams
+//      animations for music player DONE
+//      animations for teams 
 //      game/music industry mode DONE
