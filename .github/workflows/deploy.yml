@@ -47,6 +47,12 @@ jobs:
 
       - run: mkdir unsigned
 
+      - run: ls -la ./dist
+
+      - run: ls -la ./dist/mac
+
+      - run: ls -la ./dist/mac-arm64
+
       - name: zip mac x86 without a docker container (the year is 20XX)
         run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-mac-x86.zip ./dist/mac
 
@@ -59,9 +65,6 @@ jobs:
       - name: zip windows without a docker container (the year is 20XX)
         run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-windows.zip ./dist/win-unpacked
 
-      # - run: ls -la unsigned
-      #   working-directory: ./
-
-      - run: gh release create v${{inputs.app-version}} unsigned/* --repo ${{github.repository}}
-        env:
-          GH_TOKEN: ${{ github.token }}
+      # - run: gh release create v${{inputs.app-version}} unsigned/* --repo ${{github.repository}}
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
