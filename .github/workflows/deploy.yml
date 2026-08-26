@@ -55,11 +55,17 @@ jobs:
 
       - run: ls -la ./dist/mac-arm64
 
-      - name: zip mac x86 without a docker container (the year is 20XX)
-        run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-mac-x86.zip ./dist/mac
+      - name: move mac x86 dmg to dist folder
+        run: mv *-mac-x64.dmg ./unsigned
 
-      - name: zip mac arm without a docker container (the year is 20XX)
-        run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-mac-arm64.zip ./dist/mac-arm64
+      - name: move mac arm dmg to dist folder
+        run: mv *-mac-arm64.dmg ./unsigned
+
+      # - name: zip mac x86 without a docker container (the year is 20XX)
+      #   run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-mac-x86.zip ./dist/mac
+
+      # - name: zip mac arm without a docker container (the year is 20XX)
+      #   run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-mac-arm64.zip ./dist/mac-arm64
 
       - name: zip linux without a docker container (the year is 20XX)
         run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-ubuntu.zip ./dist/linux-unpacked
@@ -67,6 +73,6 @@ jobs:
       - name: zip windows without a docker container (the year is 20XX)
         run: zip -r ./unsigned/${{inputs.project-name}}-${{inputs.app-version}}-windows.zip ./dist/win-unpacked
 
-      # - run: gh release create v${{inputs.app-version}} unsigned/* --repo ${{github.repository}}
-      #   env:
-      #     GH_TOKEN: ${{ github.token }}
+      - run: gh release create vtinker unsigned/* --repo ${{github.repository}}
+        env:
+          GH_TOKEN: ${{ github.token }}
