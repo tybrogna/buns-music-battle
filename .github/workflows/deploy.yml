@@ -47,6 +47,8 @@ jobs:
 
       - run: mkdir unsigned
 
+      - run: ls -la ./
+
       - run: ls -la ./dist
 
       - run: ls -la ./dist/mac
